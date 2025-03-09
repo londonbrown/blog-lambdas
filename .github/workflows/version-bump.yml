@@ -1,11 +1,9 @@
-name: Bump Version with Cargo-Release & Generate Changelog
+name: Bump Version with cargo-release
 
 on:
-  workflow_run:
-    workflows: ["Build Lambda Functions"]
-    types:
-      - completed
-  workflow_dispatch:
+  push:
+    branches: [ "main " ]
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
   bump-version:
@@ -40,34 +38,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
-      - name: Install cargo-release & git-cliff
+      - name: Install cargo-release
         run: |
           if ! command -v cargo-release &> /dev/null; then
             rustup update stable
             cargo install cargo-release
           fi
-          if ! command -v git-cliff &> /dev/null; then
-            cargo install git-cliff
-          fi
 
-#      - name: Bump Version with cargo-release
-#        id: bump-version
-#        run: |
-#          git config --global user.name "github-actions"
-#          git config --global user.email "github-actions@github.com"
-#          cargo release patch --execute --no-confirm
-#          VERSION=$(cargo metadata --format-version 1 | jq -r '.workspace_metadata.version')
-#          echo "New version is $VERSION"
-#          echo "VERSION=$VERSION" >> $GITHUB_ENV
-#
-#      - name: Generate Changelog with git-cliff
-#        run: |
-#          git-cliff --latest > CHANGELOG.md
-#          cat CHANGELOG.md
-
-# DISABLE UNTIL CONFIRMING ABOVE IS SUCCESSFUL
-#      - name: Commit & Push Version Bump & Changelog
-#        run: |
-#          git add Cargo.toml CHANGELOG.md
-#          git commit -m "chore: bump version to ${{ env.VERSION }} and update changelog" --author="github-actions <github-actions@github.com>"
-#          git push origin main
+      - name: Bump Version with cargo-release
+        id: bump-version
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          cargo release patch --execute --no-confirm -pre-release-commit-message "cargo-release version bump"
