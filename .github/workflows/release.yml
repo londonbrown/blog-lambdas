@@ -45,12 +45,6 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Detected version: $VERSION"
 
-      - name: Download Build Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: lambda-artifacts
-          path: artifacts/
-
       - name: Generate CHANGELOG with git-cliff
         run: |
           git-cliff --latest > CHANGELOG.md
@@ -70,6 +64,14 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git tag v${{ env.VERSION }}
           git push origin v${{ env.VERSION }}
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: lambda-artifacts
+          path: artifacts/
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release
         id: create_release
