@@ -1,0 +1,39 @@
+name: Build Lambda Functions
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: # Allows manual triggering
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+    - uses: actions/checkout@v4
+
+    - name: Install cargo-lambda
+      run: |
+        rustup update stable
+        rustup target add x86_64-unknown-linux-msl
+        cargo install cargo-lambda
+    
+    - name: Build Lambda Functions
+      run: cargo lambda build --release --output-format zip
+
+    - name: Copy Lambda Artifacts to Output Directory
+      run: |
+        mkdir -p artifacts
+        for dir in target/lambda/*; do
+          if [ -d "$dir" ]; then
+            function_name=$(basename "$dir")
+            cp "$dir/bootstrap.zip" "artifacts/${function_name}.zip"
+          fi
+        done
