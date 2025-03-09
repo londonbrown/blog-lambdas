@@ -1,10 +1,10 @@
 name: Build Lambda Functions
 
 on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - "Cargo.toml"
+  workflow_run:
+    workflows: ["Bump Version with cargo-release"]
+    types:
+      - completed
   workflow_dispatch: # Allows manual triggering
 
 env:
@@ -15,7 +15,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    if: contains(github.event.head_commit.message, '[bot] version bump to')
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
     - name: Checkout Code
