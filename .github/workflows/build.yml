@@ -40,3 +40,9 @@ jobs:
             cp "$dir/bootstrap.zip" "artifacts/${function_name}.zip"
           fi
         done
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: lambda-artifacts
+        path: artifacts/
