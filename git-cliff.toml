@@ -21,4 +21,4 @@ split_commits_by_tag = true
 
 [filters]
 exclude_merge_commits = true
-exclude_tags = ["[bot]"]
+exclude_tags = ["[bot]", "workflow"]

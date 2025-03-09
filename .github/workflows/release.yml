@@ -52,6 +52,8 @@ jobs:
 
       - name: Commit & Push Updated Changelog
         run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
           git add CHANGELOG.md
           git commit -m "[bot] update changelog for release" --author="github-actions <github-actions@github.com>"
           git push origin main
@@ -79,4 +81,3 @@ jobs:
           prerelease: false
           files: |
             artifacts/*.zip
-            
