@@ -2,7 +2,7 @@ name: Bump Version with cargo-release
 
 on:
   push:
-    branches: [ "main " ]
+    branches: [ "main" ]
   workflow_dispatch: # Allows manual triggering
 
 jobs:
