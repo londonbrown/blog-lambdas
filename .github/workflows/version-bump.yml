@@ -11,8 +11,6 @@ jobs:
     permissions:
       contents: write
 
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-
     steps:
       - name: Check Commit Author
         run: |
