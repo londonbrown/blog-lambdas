@@ -52,4 +52,31 @@ jobs:
 
       - name: Commit & Push Updated Changelog
         run: |
-          echo TODO
+          git add CHANGELOG.md
+          git commit -m "[bot] update changelog for release" --author="github-actions <github-actions@github.com>"
+          git push origin main
+
+      - name: Create Git Tag
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git tag v${{ env.VERSION }}
+          git push origin v${{ env.VERSION }}
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: lambda-artifacts
+          path: artifacts/
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: Release v${{ env.VERSION }}
+          draft: false
+          prerelease: false
+          files: |
+            artifacts/*.zip
+            
