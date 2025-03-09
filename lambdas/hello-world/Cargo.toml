@@ -1,10 +1,10 @@
 [package]
 name = "hello-world"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+
 
 [dependencies]
-lambda_http = "0.14.0"
-
-tokio = { version = "1", features = ["macros"] }
+lambda_http.workspace = true
+tokio.workspace = true
 
