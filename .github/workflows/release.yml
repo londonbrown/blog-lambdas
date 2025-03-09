@@ -41,7 +41,7 @@ jobs:
       - name: Extract Version from Cargo Metadata
         id: get_version
         run: |
-          VERSION=$(cargo metadata --format-version 1 --no-deps | jq -r '.workspace_metadata.version')
+          VERSION=$(cargo metadata --format-version 1 --no-deps | jq -r '.packages[0].version')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "Detected version: $VERSION"
 
@@ -53,4 +53,3 @@ jobs:
       - name: Commit & Push Updated Changelog
         run: |
           echo TODO
-          
