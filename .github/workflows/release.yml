@@ -83,3 +83,11 @@ jobs:
           prerelease: false
           files: |
             artifacts/*.zip
+
+      - name: Trigger CDK Deployment in blog-cdk
+        run: |
+          curl -X POST \
+          -H "Authorization: token ${{ secrets.CDK_DEPLOY_TRIGGER }}" \
+          -H "Accept: application/vnd.github.everest-preview+json" \
+          https://api.github.com/repos/londonbrown/blog-cdk/dispatches \
+          -d '{"event_type": "lambda-release"}'
