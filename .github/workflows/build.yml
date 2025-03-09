@@ -19,11 +19,25 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Install cargo-lambda
+    - name: Cache Cargo
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/bin
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
+
+    - name: Install cargo-lambda (if not cached)
       run: |
-        rustup update stable
-        rustup target add x86_64-unknown-linux-musl
-        cargo install cargo-lambda
+        if ! command -v cargo-lambda &> /dev/null; then
+          rustup update stable
+          rustup target add x86_64-unknown-linux-musl
+          cargo install cargo-lambda
+        fi
 
     - name: Install Zig
       uses: mlugg/setup-zig@v1
