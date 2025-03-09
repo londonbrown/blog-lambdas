@@ -15,7 +15,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    if: ${{ github.event.head_commit.message == 'cargo-release version bump' }}
+    if: contains(github.event.head_commit.message, '[bot] version bump to')
 
     steps:
     - name: Checkout Code

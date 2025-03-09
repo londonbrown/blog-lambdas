@@ -48,4 +48,4 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          cargo release patch --execute --no-confirm -pre-release-commit-message "cargo-release version bump"
+          cargo release patch --execute --no-confirm

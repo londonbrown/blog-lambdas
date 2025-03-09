@@ -1,1 +1,2 @@
 publish = false
+pre-release-commit-message = "[bot] version bump to {{version}}"
