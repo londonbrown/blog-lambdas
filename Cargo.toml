@@ -3,8 +3,11 @@ members = ["lambdas/hello-world"]
 resolver = "2"
 
 [workspace.package]
+description = "An AWS Lambda blog API written in Rust"
 version = "0.0.1"
 edition = "2021"
+license = "MIT"
+repository = "https://github.com/londonbrown/"
 
 [workspace.dependencies]
 lambda_http = "0.14.0"
