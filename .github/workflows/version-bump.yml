@@ -1,0 +1,69 @@
+name: Bump Version with Cargo-Release & Generate Changelog
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check Commit Author
+        run: |
+          if [[ "${{ github.actor }}" == "github-actions" ]]; then
+            echo "Skipping workflow triggered by a bot commit."
+            exit 0
+          fi
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install cargo-release & git-cliff
+        run: |
+          if ! command -v cargo-release &> /dev/null; then
+            rustup update stable
+            cargo install cargo-release
+          fi
+          if ! command -v git-cliff &> /dev/null; then
+            cargo install git-cliff
+          fi
+
+      - name: Bump Version with cargo-release
+        id: bump-version
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          cargo release patch --execute --no-confirm
+          VERSION=$(cargo metadata --format-version 1 | jq -r '.workspace_metadata.version')
+          echo "New version is $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Generate Changelog with git-cliff
+        run: |
+          git-cliff --latest > CHANGELOG.md
+          cat CHANGELOG.md
+
+# DISABLE UNTIL CONFIRMING ABOVE IS SUCCESSFUL
+#      - name: Commit & Push Version Bump & Changelog
+#        run: |
+#          git add Cargo.toml CHANGELOG.md
+#          git commit -m "chore: bump version to ${{ env.VERSION }} and update changelog" --author="github-actions <github-actions@github.com>"
+#          git push origin main

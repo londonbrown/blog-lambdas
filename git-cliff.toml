@@ -1,0 +1,23 @@
+[changelog]
+header = "# Changelog"
+body = """
+## [{{ version }}] - {{ timestamp }}
+{{ commits }}
+"""
+
+[git]
+conventional_commits = true
+split_commits_by_tag = true
+
+[commit_parsers]
+"feat" = "✨ Features"
+"fix" = "🐛 Bug Fixes"
+"chore" = "🛠 Maintenance"
+"docs" = "📖 Documentation"
+"refactor" = "♻️ Refactor"
+"perf" = "🚀 Performance"
+"test" = "🧪 Testing"
+"default" = "📌 Other Changes"
+
+[filters]
+exclude_merge_commits = true
