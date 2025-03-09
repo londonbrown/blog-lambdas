@@ -10,7 +10,7 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, E
         .query_string_parameters_ref()
         .and_then(|params| params.first("name"))
         .unwrap_or("world");
-    let message = format!("Hello {who}, this is an AWS Lambda HTTP request");
+    let message = format!("Hello {who}, this is an AWS Lambda HTTP request!");
 
     // Return something that implements IntoResponse.
     // It will be serialized to the right response event automatically by the runtime
