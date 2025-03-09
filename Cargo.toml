@@ -1,5 +1,5 @@
 [workspace]
-members = ["lambdas/hello-world"]
+members = ["lambdas/hello-world", "lambdas/get-post"]
 resolver = "2"
 
 [workspace.package]
@@ -10,5 +10,8 @@ license = "MIT"
 repository = "https://github.com/londonbrown/blog-lambdas"
 
 [workspace.dependencies]
+aws-config = { version = "1.1.7", features = ["behavior-version-latest"] }
+aws-sdk-dynamodb = "1.67.0"
 lambda_http = "0.14.0"
-tokio = { version = "1", features = ["macros"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
