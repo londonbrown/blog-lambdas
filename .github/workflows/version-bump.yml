@@ -5,6 +5,7 @@ on:
     workflows: ["Build Lambda Functions"]
     types:
       - completed
+  workflow_dispatch:
 
 jobs:
   bump-version:
