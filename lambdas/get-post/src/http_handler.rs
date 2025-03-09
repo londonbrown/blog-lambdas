@@ -35,9 +35,15 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, E
     // Retrieve the post from DynamoDB
     let result = client.get_item()
         .table_name(&table_name)
-        .key("postId", AttributeValue::S(post_id))
+        .key("postId", AttributeValue::S(post_id.clone()))
         .send()
         .await?;
+
+    if result.item.is_none() {
+        return Ok(Response::builder()
+            .status(404)
+            .body(json!({"error": format!("Post with ID '{}' not found", post_id)}).to_string().into())?);
+    }
 
     if let Some(item) = result.item {
         let serialized_item = serialize_dynamodb_item(item);
