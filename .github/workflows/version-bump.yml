@@ -1,15 +1,18 @@
 name: Bump Version with Cargo-Release & Generate Changelog
 
 on:
-  push:
-    branches: ["main"]
-  workflow_dispatch: # Allows manual triggering
+  workflow_run:
+    workflows: ["Build Lambda Functions"]
+    types:
+      - completed
 
 jobs:
   bump-version:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Check Commit Author
