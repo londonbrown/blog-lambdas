@@ -5,6 +5,7 @@ on:
     workflows: ["Build Lambda Functions"]
     types:
       - completed
+  workflow_dispatch:
 
 jobs:
   bump-version:
@@ -49,20 +50,20 @@ jobs:
             cargo install git-cliff
           fi
 
-      - name: Bump Version with cargo-release
-        id: bump-version
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          cargo release patch --execute --no-confirm
-          VERSION=$(cargo metadata --format-version 1 | jq -r '.workspace_metadata.version')
-          echo "New version is $VERSION"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      - name: Generate Changelog with git-cliff
-        run: |
-          git-cliff --latest > CHANGELOG.md
-          cat CHANGELOG.md
+#      - name: Bump Version with cargo-release
+#        id: bump-version
+#        run: |
+#          git config --global user.name "github-actions"
+#          git config --global user.email "github-actions@github.com"
+#          cargo release patch --execute --no-confirm
+#          VERSION=$(cargo metadata --format-version 1 | jq -r '.workspace_metadata.version')
+#          echo "New version is $VERSION"
+#          echo "VERSION=$VERSION" >> $GITHUB_ENV
+#
+#      - name: Generate Changelog with git-cliff
+#        run: |
+#          git-cliff --latest > CHANGELOG.md
+#          cat CHANGELOG.md
 
 # DISABLE UNTIL CONFIRMING ABOVE IS SUCCESSFUL
 #      - name: Commit & Push Version Bump & Changelog
