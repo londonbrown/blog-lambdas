@@ -1,0 +1,56 @@
+name: Publish Lambda Release
+
+on:
+  workflow_run:
+    workflows: ["Build Lambda Functions"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cache Cargo Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys:
+            ${{ runner.os }}-cargo-
+
+      - name: Install git-cliff
+        run: |
+          if ! command -v git-cliff &> /dev/null; then
+            cargo install git-cliff
+          fi
+
+      - name: Extract Version from Cargo Metadata
+        id: get_version
+        run: |
+          VERSION=$(cargo metadata --format-version 1 --no-deps | jq -r '.workspace_metadata.version')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Detected version: $VERSION"
+
+      - name: Generate CHANGELOG with git-cliff
+        run: |
+          git-cliff --latest > CHANGELOG.md
+          cat CHANGELOG.md
+
+      - name: Commit & Push Updated Changelog
+        run: |
+          echo TODO
+          
