@@ -1,0 +1,16 @@
+{
+  "version": "2.0",
+  "routeKey": "$default",
+  "rawPath": "/posts",
+  "rawQueryString": "limit=5",
+  "requestContext": {
+    "http": {
+      "method": "GET",
+      "path": "/posts"
+    }
+  },
+  "queryStringParameters": {
+    "limit": "5"
+  },
+  "isBase64Encoded": false
+}

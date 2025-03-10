@@ -720,6 +720,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "get-posts"
+version = "0.0.30"
+dependencies = [
+ "aws-config",
+ "aws-sdk-dynamodb",
+ "lambda_http",
+ "serde",
+ "serde_json",
+ "shared",
+ "tokio",
+]
+
+[[package]]
 name = "getrandom"
 version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"

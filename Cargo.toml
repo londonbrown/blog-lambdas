@@ -1,5 +1,5 @@
 [workspace]
-members = ["lambdas/get-post", "shared"]
+members = ["lambdas/get-post", "lambdas/get-posts", "shared"]
 resolver = "2"
 
 [workspace.package]
