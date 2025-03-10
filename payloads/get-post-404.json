@@ -1,0 +1,16 @@
+{
+  "version": "2.0",
+  "routeKey": "$default",
+  "rawPath": "/post/post-000",
+  "rawQueryString": "",
+  "requestContext": {
+    "http": {
+      "method": "GET",
+      "path": "/post/post-000"
+    }
+  },
+  "pathParameters": {
+    "id": "post-000"
+  },
+  "isBase64Encoded": false
+}
