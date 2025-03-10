@@ -3,6 +3,7 @@ use aws_sdk_dynamodb::Client;
 use aws_sdk_dynamodb::types::AttributeValue;
 use serde::{Deserialize, Serialize};
 use std::env;
+use serde_dynamo::{Item};
 use tracing::info;
 
 // TODO make this struct a shared object
@@ -54,14 +55,10 @@ pub(crate) async fn function_handler(_event: Request) -> Result<Response<Body>, 
 
     info!("DynamoDB response: {:?}", result);
 
-    for item in result.items.unwrap_or_default() {
-        if let Some(sk) = item.get("SK").and_then(|v| v.as_s().ok()) {
-            if sk == "META" {
-                info!("Found META item: {:?}", item)
-            } else if sk.starts_with("COMMENT#") {
-                info!("Found COMMENT item: {:?}", item)
-            }
-        }
+    for raw_item in result.items.unwrap_or_default() {
+        info!("raw_item: {:?}", raw_item);
+        let item: Item = raw_item.into();
+        info!("item: {:?}", item);
     }
 
     Ok(Response::builder()
