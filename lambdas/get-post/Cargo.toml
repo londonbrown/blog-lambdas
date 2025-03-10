@@ -16,4 +16,4 @@ serde_dynamo.workspace = true
 tokio.workspace = true
 serde.workspace = true
 tracing.workspace = true
-shared = { path = "../shared"}
+shared = { path = "../../shared"}
