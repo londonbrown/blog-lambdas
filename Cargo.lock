@@ -713,10 +713,10 @@ dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
  "lambda_http",
- "log",
  "serde",
  "serde_dynamo",
  "serde_json",
+ "shared",
  "tokio",
  "tracing",
 ]
@@ -1669,6 +1669,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f40ca3c46823713e0d4209592e8d6e826aa57e928f09752619fc696c499637f6"
 dependencies = [
  "lazy_static",
+]
+
+[[package]]
+name = "shared"
+version = "0.0.25"
+dependencies = [
+ "serde",
 ]
 
 [[package]]

@@ -1,43 +1,11 @@
 use lambda_http::{Body, Request, RequestExt, Response};
 use aws_sdk_dynamodb::Client;
 use aws_sdk_dynamodb::types::AttributeValue;
-use serde::{Deserialize, Serialize};
 use std::env;
 use serde_dynamo::from_item;
 use serde_json::json;
 use tracing::info;
-
-// TODO make this struct a shared object
-#[derive(Debug, Deserialize, Serialize)]
-struct BlogPost {
-    #[serde(rename = "PK")]
-    pk: String,
-    #[serde(rename = "SK")]
-    sk: String,
-    title: String,
-    #[serde(rename = "authorId")]
-    author_id: String,
-    tags: Option<Vec<String>>,
-    published: Option<String>,
-    #[serde(rename = "createdAt")]
-    created_at: String,
-    #[serde(rename = "contentKey")]
-    content_key: String
-}
-
-// TODO make this struct a shared object
-#[derive(Debug, Deserialize, Serialize)]
-struct Comment {
-    #[serde(rename = "PK")]
-    pk: String,
-    #[serde(rename = "SK")]
-    sk: String,
-    #[serde(rename = "userId")]
-    user_id: String,
-    text: String,
-    #[serde(rename = "createdAt")]
-    created_at: String
-}
+use shared::models::{BlogPost, Comment};
 
 pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, Box<dyn std::error::Error + Send + Sync>> {
     let client = Client::new(&aws_config::load_from_env().await);

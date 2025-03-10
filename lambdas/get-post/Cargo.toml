@@ -14,6 +14,6 @@ lambda_http.workspace = true
 serde_json.workspace = true
 serde_dynamo.workspace = true
 tokio.workspace = true
-log = "0.4.26"
-serde = { version = "1.0.218", features = ["derive"] }
+serde.workspace = true
 tracing.workspace = true
+shared = { path = "../shared"}
