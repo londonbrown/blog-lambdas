@@ -4,7 +4,7 @@ use crate::models::{BlogPost, Comment};
 use serde_dynamo::from_item;
 use tracing::info;
 
-pub async fn fetch_post_and_comments(client: &Client, table_name: &String, post_id: &str) -> (Option<BlogPost>, Vec<Comment>) {
+pub async fn fetch_post_and_comments(client: &Client, table_name: &str, post_id: &str) -> (Option<BlogPost>, Vec<Comment>) {
     let partition_key = format!("POST#{}", post_id);
 
     let result = client.query()
