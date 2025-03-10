@@ -713,6 +713,7 @@ dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
  "lambda_http",
+ "log",
  "serde_json",
  "tokio",
 ]
