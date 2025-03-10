@@ -1675,7 +1675,10 @@ dependencies = [
 name = "shared"
 version = "0.0.26"
 dependencies = [
+ "aws-sdk-dynamodb",
  "serde",
+ "serde_dynamo",
+ "tracing",
 ]
 
 [[package]]
