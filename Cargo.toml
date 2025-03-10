@@ -14,4 +14,6 @@ aws-config = { version = "1.1.7", features = ["behavior-version-latest"] }
 aws-sdk-dynamodb = "1.67.0"
 lambda_http = "0.14.0"
 serde_json = "1.0"
+serde_dynamo = "4.2.14"
 tokio = { version = "1", features = ["full"] }
+tracing = "0.1.41"
