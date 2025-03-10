@@ -708,7 +708,7 @@ dependencies = [
 
 [[package]]
 name = "get-post"
-version = "0.0.20"
+version = "0.0.21"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -761,7 +761,7 @@ checksum = "bf151400ff0baff5465007dd2f3e717f3fe502074ca563069ce3a6629d07b289"
 
 [[package]]
 name = "hello-world"
-version = "0.0.20"
+version = "0.0.21"
 dependencies = [
  "lambda_http",
  "tokio",
