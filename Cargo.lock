@@ -526,7 +526,7 @@ dependencies = [
 
 [[package]]
 name = "create-post"
-version = "0.0.32"
+version = "0.0.33"
 dependencies = [
  "lambda_http",
  "tokio",
