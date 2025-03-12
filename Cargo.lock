@@ -526,7 +526,7 @@ dependencies = [
 
 [[package]]
 name = "create-post"
-version = "0.0.33"
+version = "0.0.34"
 dependencies = [
  "lambda_http",
  "tokio",
@@ -716,7 +716,7 @@ dependencies = [
 
 [[package]]
 name = "get-post"
-version = "0.0.33"
+version = "0.0.34"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -729,7 +729,7 @@ dependencies = [
 
 [[package]]
 name = "get-posts"
-version = "0.0.33"
+version = "0.0.34"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -1684,7 +1684,7 @@ dependencies = [
 
 [[package]]
 name = "shared"
-version = "0.0.33"
+version = "0.0.34"
 dependencies = [
  "aws-sdk-dynamodb",
  "lambda_http",
