@@ -525,6 +525,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "create-post"
+version = "0.0.32"
+dependencies = [
+ "lambda_http",
+ "tokio",
+]
+
+[[package]]
 name = "crypto-common"
 version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
