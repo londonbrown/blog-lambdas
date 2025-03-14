@@ -561,7 +561,7 @@ dependencies = [
 
 [[package]]
 name = "create-post"
-version = "0.0.41"
+version = "0.0.42"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -760,7 +760,7 @@ dependencies = [
 
 [[package]]
 name = "get-post"
-version = "0.0.41"
+version = "0.0.42"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -773,7 +773,7 @@ dependencies = [
 
 [[package]]
 name = "get-posts"
-version = "0.0.41"
+version = "0.0.42"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -1779,7 +1779,7 @@ dependencies = [
 
 [[package]]
 name = "shared"
-version = "0.0.41"
+version = "0.0.42"
 dependencies = [
  "aws-sdk-dynamodb",
  "serde",
