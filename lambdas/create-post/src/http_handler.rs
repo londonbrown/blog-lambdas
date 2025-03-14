@@ -12,12 +12,14 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, B
     let authorizer = request_context.authorizer().ok_or("Missing authorizer context")?;
     info!("Authorizer: {:?}", authorizer);
 
-    let jwt = authorizer.jwt.as_ref().ok_or("Missing JWT in authorizer")?;
-    info!("JWT Claims: {:?}", jwt.claims);
+    let claims = authorizer
+        .fields
+        .get("claims")
+        .ok_or("Missing claims in fields")?
+        .as_object()
+        .ok_or("Claims is not an object")?;
 
-    let claims = &jwt.claims;
-
-    let author_id = claims.get("sub").ok_or("Missing sub claim")?.as_str();
+    let author_id = claims.get("sub").ok_or("Missing sub claim")?.as_str().ok_or("sub is not a string")?.to_owned();
 
     let body = event.body();
     let body_str = std::str::from_utf8(body)?;
