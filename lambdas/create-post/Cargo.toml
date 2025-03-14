@@ -7,10 +7,13 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+aws-config.workspace = true
+aws-sdk-dynamodb.workspace = true
 lambda_http.workspace = true
 tokio.workspace = true
 serde = { version = "1.0.218", features = ["derive"] }
 serde_json.workspace = true
+serde_dynamo.workspace = true
 shared = { path = "../../shared"}
 uuid = { version = "1.15.1", features = ["v4"] }
 chrono.workspace = true

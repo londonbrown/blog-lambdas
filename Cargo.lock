@@ -563,9 +563,12 @@ dependencies = [
 name = "create-post"
 version = "0.0.38"
 dependencies = [
+ "aws-config",
+ "aws-sdk-dynamodb",
  "chrono",
  "lambda_http",
  "serde",
+ "serde_dynamo",
  "serde_json",
  "shared",
  "tokio",

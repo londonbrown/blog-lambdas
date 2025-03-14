@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use aws_sdk_dynamodb::Client;
 use aws_sdk_dynamodb::types::AttributeValue;
 use crate::models::{BlogPost, Comment};
-use serde_dynamo::{from_item, from_items};
+use serde_dynamo::{from_item, from_items, to_item};
 use tracing::info;
 
 pub fn extract_next_token(last_evaluated_key: Option<HashMap<String, AttributeValue>>) -> Option<String> {
@@ -49,6 +49,33 @@ pub async fn fetch_post_and_comments(client: &Client, table_name: &str, post_id:
     }
 
     (meta, comments)
+}
+
+pub async fn create_post(client: &Client, table_name: &str, post: &BlogPost) -> Result<(), String> {
+    let partition_key = post.pk.clone();
+
+    let existing_post = client.get_item()
+        .table_name(table_name)
+        .key("PK", AttributeValue::S(partition_key.clone()))
+        .key("SK", AttributeValue::S("META".to_string()))
+        .send()
+        .await
+        .map_err(|e| format!("DynamoDB error: {}", e))?;
+
+    if existing_post.item.is_some() {
+        return Err("Post already exists".to_string());
+    }
+
+    let item = to_item(post).map_err(|e| format!("Serialization error: {}", e))?;
+
+    client.put_item()
+        .table_name(table_name)
+        .set_item(Some(item))
+        .send()
+        .await
+        .map_err(|e| format!("DynamoDB error: {}", e))?;
+
+    Ok(())
 }
 
 pub async fn fetch_published_posts(
