@@ -4,7 +4,7 @@ resolver = "2"
 
 [workspace.package]
 description = "An AWS Lambda blog API written in Rust"
-version = "0.0.43"
+version = "0.0.44"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/londonbrown/blog-lambdas"
