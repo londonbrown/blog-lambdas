@@ -62,11 +62,15 @@ pub async fn create_post(client: &Client, table_name: &str, post: &BlogPost) -> 
         .await
         .map_err(|e| format!("DynamoDB error: {}", e))?;
 
+    info!("existing post: {:?}", existing_post);
+
     if existing_post.item.is_some() {
         return Err("Post already exists".to_string());
     }
 
     let item = to_item(post).map_err(|e| format!("Serialization error: {}", e))?;
+
+    info!("item: {:?}", item);
 
     client.put_item()
         .table_name(table_name)
