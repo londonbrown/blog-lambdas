@@ -29,3 +29,20 @@ pub struct Comment {
     #[serde(rename = "createdAt")]
     pub created_at: String
 }
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct PostRequest {
+    pub title: String,
+    pub content: String,
+    pub tags: Option<Vec<String>>,
+    pub published: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PostResponse {
+    #[serde(rename = "postId")]
+    pub post_id: String,
+    pub title: String,
+    pub content: String,
+    pub author_id: String,
+}

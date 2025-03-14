@@ -1,0 +1,30 @@
+{
+  "version": "2.0",
+  "routeKey": "$default",
+  "rawPath": "/post",
+  "rawQueryString": "",
+  "headers": {
+    "Authorization": "Bearer YOUR_TEST_JWT",
+    "Content-Type": "application/json"
+  },
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/post"
+    },
+    "authorizer": {
+      "jwt": {
+        "claims": {
+          "sub": "74a83468-c0c1-70dc-3a02-0f88012d3238",
+          "email_verified": "true",
+          "cognito:username": "london",
+          "aud": "1a71pk38veo7n2l8c280n5rqp8",
+          "token_use": "id",
+          "email": "londonchaim@gmail.com"
+        }
+      }
+    }
+  },
+  "body": "{ \"title\": \"My First Blog Post\", \"content\": \"This is a test post.\", \"author_id\": \"74a83468-c0c1-70dc-3a02-0f88012d3238\" }",
+  "isBase64Encoded": false
+}
