@@ -119,11 +119,25 @@ pub async fn create_post(client: &Client, table_name: &str, post: &BlogPost) -> 
     Ok(())
 }
 
+pub fn parse_next_token(token: &str) -> Option<HashMap<String, AttributeValue>> {
+    let parts: Vec<&str> = token.split('|').collect();
+    if parts.len() != 2 {
+        return None;
+    }
+
+    let mut key = HashMap::new();
+    key.insert("PK".to_string(), AttributeValue::S(parts[0].to_string()));
+    key.insert("SK".to_string(), AttributeValue::S(parts[1].to_string()));
+
+    Some(key)
+}
+
+
 pub async fn fetch_published_posts(
     client: &Client,
     table_name: &str,
     limit: Option<i32>,
-    _next_token: Option<String> // TODO parse next token
+    next_token: Option<String> // TODO parse next token
 ) -> (Vec<BlogPost>, Option<String>) {
     let mut request = client.query()
         .table_name(table_name)
@@ -133,6 +147,12 @@ pub async fn fetch_published_posts(
 
     if let Some(l) = limit {
         request = request.limit(l)
+    }
+
+    if let Some(token) = next_token {
+        if let Some(start_key) = parse_next_token(&token) {
+            request = request.set_exclusive_start_key(Some(start_key))
+        }
     }
 
     let result = request.send().await.expect("DynamoDB query failed");

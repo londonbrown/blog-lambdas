@@ -11,7 +11,7 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, B
 
     let query_string_parameters = event.query_string_parameters();
     let limit = query_string_parameters.first("limit").and_then(|l| l.parse().ok());
-    let next_token: Option<String> = None; // TODO Extract from request
+    let next_token = query_string_parameters.first("nextToken").map(|s| s.to_string());
 
     let (posts, next_token) = fetch_published_posts(&client, &table_name, limit, next_token).await;
 
