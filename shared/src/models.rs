@@ -9,8 +9,8 @@ pub struct BlogPost {
     pub title: String,
     #[serde(rename = "authorId")]
     pub author_id: String,
-    pub tags: Option<Vec<String>>,
-    pub published: Option<String>,
+    pub tags: Vec<String>,
+    pub published: String,
     #[serde(rename = "createdAt")]
     pub created_at: String,
     #[serde(rename = "contentKey")]
@@ -30,12 +30,22 @@ pub struct Comment {
     pub created_at: String
 }
 
+fn default_published() -> String {
+    "false".to_string()
+}
+
+fn default_tags() -> Vec<String> {
+    vec![]
+}
+
 #[derive(Debug, Deserialize, Serialize)]
 pub struct PostRequest {
     pub title: String,
     pub content: String,
-    pub tags: Option<Vec<String>>,
-    pub published: Option<String>,
+    #[serde(default = "default_tags")]
+    pub tags: Vec<String>,
+    #[serde(default = "default_published")]
+    pub published: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
