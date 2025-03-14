@@ -1,9 +1,11 @@
 use std::collections::HashMap;
 use aws_sdk_dynamodb::Client;
+use aws_sdk_dynamodb::error::SdkError;
 use aws_sdk_dynamodb::types::AttributeValue;
 use crate::models::{BlogPost, Comment};
 use serde_dynamo::{from_item, from_items, to_item};
 use tracing::info;
+use tracing::log::error;
 
 pub fn extract_next_token(last_evaluated_key: Option<HashMap<String, AttributeValue>>) -> Option<String> {
     last_evaluated_key.and_then(|mut key| {
@@ -77,7 +79,42 @@ pub async fn create_post(client: &Client, table_name: &str, post: &BlogPost) -> 
         .set_item(Some(item))
         .send()
         .await
-        .map_err(|e| format!("DynamoDB error: {}", e))?;
+        .map_err(|e| {
+            match &e {
+                SdkError::ServiceError(err) => {
+                    error!(
+                    "DynamoDB service error: {:?}, raw: {:?}",
+                    err.err(),
+                    err.raw()
+                );
+                    format!(
+                        "DynamoDB service error: {:?}",
+                        err.err()
+                    )
+                }
+                SdkError::TimeoutError(err) => {
+                    error!("DynamoDB timeout error: {:?}", err);
+                    format!("DynamoDB timeout error: {:?}", err)
+                }
+                SdkError::ConstructionFailure(err) => {
+                    error!("DynamoDB request construction failed: {:?}", err);
+                    format!("DynamoDB request construction failed: {:?}", err)
+                }
+                SdkError::DispatchFailure(err) => {
+                    error!("DynamoDB network dispatch failed: {:?}", err);
+                    format!("DynamoDB network dispatch failed: {:?}", err)
+                }
+                SdkError::ResponseError(err) => {
+                    error!("DynamoDB response error: {:?}", err);
+                    format!("DynamoDB response error: {:?}", err)
+                }
+                other => {
+                    error!("Unexpected DynamoDB error: {:?}", other);
+                    format!("Unexpected DynamoDB error: {:?}", other)
+                }
+            }
+        })?;
+
 
     Ok(())
 }
