@@ -11,19 +11,7 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, B
 
     info!("Claims: {:?}", claims);
 
-    let groups = claims.get("cognito:groups")
-        .and_then(|g| g.as_array())
-        .unwrap_or(&vec![])
-        .iter()
-        .map(|v| v.as_str().unwrap_or(""))
-        .collect::<Vec<&str>>();
-
-    if !groups.contains(&"Admin") {
-        return Ok(Response::builder()
-            .status(403)
-            .body(Body::Text("Forbidden: Only admins can delete posts".to_string()))
-            .unwrap());
-    }
+    // TODO extract group id from claims
 
     Ok(Response::builder()
         .status(200)
