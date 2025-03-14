@@ -1,13 +1,20 @@
 use chrono::Utc;
 use lambda_http::{Body, Request, RequestExt, Response};
 use serde_json::to_string;
+use tracing::info;
 use shared::models::{BlogPost, PostRequest};
 use uuid::Uuid;
 
 pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, Box<dyn std::error::Error + Send + Sync>> {
     let request_context = event.request_context();
+    info!("Full Request Context: {:?}", request_context);
+
     let authorizer = request_context.authorizer().ok_or("Missing authorizer context")?;
+    info!("Authorizer: {:?}", authorizer);
+
     let jwt = authorizer.jwt.as_ref().ok_or("Missing JWT in authorizer")?;
+    info!("JWT Claims: {:?}", jwt.claims);
+
     let claims = &jwt.claims;
 
     let author_id = claims.get("sub").ok_or("Missing sub claim")?.as_str();
