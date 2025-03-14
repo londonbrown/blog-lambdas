@@ -1,5 +1,5 @@
 [workspace]
-members = [ "lambdas/create-post","lambdas/get-post", "lambdas/get-posts", "shared"]
+members = [ "lambdas/create-post", "lambdas/delete-post","lambdas/get-post", "lambdas/get-posts", "shared"]
 resolver = "2"
 
 [workspace.package]
@@ -21,3 +21,5 @@ tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 tracing-log = "0.2.0"
 chrono = "0.4.40"
+uuid = { version = "1.15.1", features = ["v4"] }
+
