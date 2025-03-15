@@ -86,11 +86,12 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, B
                 "Action": "execute-api:Invoke",
                 "Effect": effect,
                 "Resource": format!(
-                    "arn:aws:execute-api:{}:{}:{}/*/{}",
+                    "arn:aws:execute-api:{}:{}:{}/*/{}{}",
                     region,
                     env::var("AWS_ACCOUNT_ID")?,
                     env::var("API_GATEWAY_ID")?,
-                    method
+                    method,
+                    path
                 )
             }]
         }
