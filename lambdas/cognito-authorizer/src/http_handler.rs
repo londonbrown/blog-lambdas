@@ -1,118 +1,88 @@
-use std::collections::HashMap;
+use lambda_http::{Body, Request, Response};
+use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
+use reqwest;
+use serde_json::{json, Value};
 use std::env;
-use lambda_http::{Body, Error, Request, Response};
-// use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
-// use reqwest::Client;
-use serde_json::Value;
-use serde::{Deserialize, Serialize};
 use tracing::info;
 
-/// Structure of Cognito JWT Claims
-#[derive(Debug, Deserialize)]
-struct Claims {
-    sub: String,
-    #[serde(rename = "cognito:groups")]
-    groups: Option<Vec<String>>,
-}
-
-/// API Gateway Authorizer Response
-#[derive(Debug, Serialize)]
-struct AuthPolicy {
-    principal_id: String,
-    policy_document: PolicyDocument,
-}
-
-/// IAM Policy
-#[derive(Debug, Serialize)]
-struct PolicyDocument {
-    version: String,
-    statement: Vec<Statement>,
-}
-
-/// Policy Statement
-#[derive(Debug, Serialize)]
-struct Statement {
-    effect: String,
-    action: String,
-    resource: String,
-}
-
-// async fn fetch_jwks(jwks_url: &str) -> Result<HashMap<String, DecodingKey>, Error> {
-//     let client = Client::new();
-//     let jwks: Value = client.get(jwks_url).send().await?.json().await?;
-//     let mut keys = HashMap::new();
-//
-//     if let Some(keys_array) = jwks.get("keys").and_then(|k| k.as_array()) {
-//         for key in keys_array {
-//             if let (Some(kid), Some(n), Some(e)) = (
-//                 key.get("kid").and_then(|v| v.as_str()),
-//                 key.get("n").and_then(|v| v.as_str()),
-//                 key.get("e").and_then(|v|v.as_str())
-//             ) {
-//                 let decoding_key = DecodingKey::from_rsa_components(n, e)?;
-//                 keys.insert(kid.to_string(), decoding_key);
-//             }
-//         }
-//     }
-//     Ok(keys)
-// }
-
-pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, Error> {
+pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, Box<dyn std::error::Error + Send + Sync>> {
     info!("Received event: {:?}", event);
 
-    return Ok(Response::new(Body::Text("Done".to_string())));
+    let auth_header = event
+        .headers()
+        .get("authorization")
+        .and_then(|value| value.to_str().ok())
+        .and_then(|s| s.strip_prefix("Bearer "))
+        .ok_or("Missing Authorization header")?;
+    info!("Extracted Authorization header: {}", auth_header);
 
-    // let token = event
-    //     .headers()
-    //     .get("Authentication")
-    //     .and_then(|v| v.to_str().ok())
-    //     .and_then(|v| v.strip_prefix("Bearer "))
-    //     .ok_or("Missing or invalid Authorization header")?;
-    //
-    // let user_pool_id = env::var("USER_POOL_ID").expect("USER_POOL_ID not set");
-    //
-    // let jwks_url = format!("https://cognito-idp.us-east-1.amazonaws.com/{}/.well-known.jwks.json", user_pool_id);
-    // let jwks = fetch_jwks(&jwks_url).await?;
-    //
-    // let header = jsonwebtoken::decode_header(token)?;
-    // let kid = header.kid.ok_or("Missing kid in token")?;
-    // let decoding_key = jwks.get(&kid).ok_or("Invalid kid")?;
-    //
-    // let validation = Validation::new(Algorithm::RS256);
-    // let token_data = decode::<Claims>(token, decoding_key, &validation)?;
-    //
-    // let claims = token_data.claims;
-    // let is_admin = claims
-    //     .groups
-    //     .unwrap_or_default()
-    //     .iter()
-    //     .any(|g| g == "Admin");
-    //
-    // if is_admin {
-    //     let policy = AuthPolicy {
-    //         principal_id: claims.sub,
-    //         policy_document: PolicyDocument {
-    //             version: "2012-10-17".to_string(),
-    //             statement: vec![Statement {
-    //                 effect: "Allow".to_string(),
-    //                 action: "execute-api:Invoke".to_string(),
-    //                 resource: "*".to_string() // TODO
-    //             }]
-    //         }
-    //     };
-    //     Ok(Response::new(Body::Text(serde_json::to_string(&policy)?)))
-    // } else {
-    //     let policy = AuthPolicy {
-    //         principal_id: claims.sub,
-    //         policy_document: PolicyDocument {
-    //             version: "2012-10-17".to_string(),
-    //             statement: vec![Statement {
-    //                 effect: "Deny".to_string(),
-    //                 action: "execute-api:Invoke".to_string(),
-    //                 resource: "*".to_string()
-    //             }]
-    //         }
-    //     };
-    //     Ok(Response::new(Body::Text(serde_json::to_string(&policy)?)))
-    // }
+    let method = event.method().as_str();
+    let path = event.uri().path();
+    info!("Method: {}, Path: {}", method, path);
+
+    let user_pool_id = env::var("USER_POOL_ID")?;
+    let region = env::var("AWS_REGION")?;
+
+    let jwks_url = format!(
+        "https://cognito-idp.{}.amazonaws.com/{}/.well-known/jwks.json",
+        region, user_pool_id
+    );
+    info!("Fetching JWKS from: {}", jwks_url);
+
+    let jwks: Value = reqwest::get(&jwks_url).await?.json::<Value>().await?;
+    let jwk_keys = jwks["keys"].as_array().ok_or("Invalid JWKS format")?;
+
+    let header = decode_header(auth_header)?;
+    let kid = header.kid.ok_or("Missing 'kid' in JWT header")?;
+    info!("Extracted JWT 'kid': {}", kid);
+
+    let jwk = jwk_keys
+        .iter()
+        .find(|jwk| jwk["kid"].as_str() == Some(&kid))
+        .ok_or("No matching JWK found")?;
+
+    let n = jwk["n"].as_str().ok_or("Missing 'n' in JWK")?;
+    let e = jwk["e"].as_str().ok_or("Missing 'e' in JWK")?;
+
+    let decoding_key = DecodingKey::from_rsa_components(n, e)?;
+    let validation = Validation::new(Algorithm::RS256);
+    let token_data = decode::<Value>(auth_header, &decoding_key, &validation)?;
+    let claims = token_data.claims;
+
+    info!("Decoded claims: {:?}", claims);
+
+    let user_id = claims["sub"].as_str().unwrap_or("unknown-user");
+    let groups = claims["cognito:groups"].as_str().unwrap_or("");
+    let is_admin = groups.contains("Admin");
+
+    let effect = if is_admin || (method == "POST" && path == "/post") {
+        "Allow"
+    } else {
+        "Deny"
+    };
+
+    let policy = json!({
+        "principalId": user_id,
+        "policyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [{
+                "Action": "execute-api:Invoke",
+                "Effect": effect,
+                "Resource": format!(
+                    "arn:aws:execute-api:{}:{}:{}/*/{}",
+                    region,
+                    env::var("AWS_ACCOUNT_ID")?,
+                    env::var("API_GATEWAY_ID")?,
+                    method
+                )
+            }]
+        }
+    });
+
+    info!("Generated policy: {:?}", policy);
+
+    Ok(Response::builder()
+        .status(200)
+        .header("content-type", "application/json")
+        .body(Body::Text(policy.to_string()))?)
 }
