@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use lambda_http::{Body, Request, Response};
 use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
 use reqwest;
@@ -44,8 +45,28 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, B
     let n = jwk["n"].as_str().ok_or("Missing 'n' in JWK")?;
     let e = jwk["e"].as_str().ok_or("Missing 'e' in JWK")?;
 
+    info!("n: {}", n);
+    info!("e: {}", e);
+
+    let expected_audience = env::var("COGNITO_CLIENT_ID").expect("COGNITO_CLIENT_ID not set");
+    let expected_issuer = format!("https://cognito-idp.{}.amazonaws.com/{}", region, user_pool_id);
+
+    let mut audience_set = HashSet::new();
+    audience_set.insert(expected_audience);
+
+    let mut issuer_set = HashSet::new();
+    issuer_set.insert(expected_issuer);
+
     let decoding_key = DecodingKey::from_rsa_components(n, e)?;
-    let validation = Validation::new(Algorithm::RS256);
+    let validation = Validation {
+        leeway: 0,
+        validate_exp: true,
+        algorithms: vec![Algorithm::RS256],
+        aud: Some(audience_set),
+        iss: Some(issuer_set),
+        ..Default::default()
+    };
+
     let token_data = decode::<Value>(auth_header, &decoding_key, &validation)?;
     let claims = token_data.claims;
 
