@@ -1,9 +1,20 @@
-use lambda_http::{Body, Request, RequestExt, Response};
+use lambda_http::{Body, Context, Request, RequestExt, Response};
 use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
 use reqwest;
 use serde_json::{json, Value};
 use std::env;
+use lambda_http::aws_lambda_events::apigw::ApiGatewayProxyRequestContext;
+use lambda_http::request::{RequestContext};
 use tracing::info;
+
+fn extract_resource_path(request: &Request) -> String {
+    match request.request_context() {
+        RequestContext::ApiGatewayV1(ctx) => {
+            ctx.resource_path.clone().unwrap_or_else(|| "/".to_string())
+        }
+        _ => "/".to_string(), // Default in case we get an unexpected context
+    }
+}
 
 pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, Box<dyn std::error::Error + Send + Sync>> {
     info!("Received event: {:?}", event);
@@ -19,8 +30,9 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, B
     info!("Extracted Authorization header: {}", auth_header);
 
     let method = event.method().as_str();
-    let path = event.uri().path();
-    info!("Method: {}, Path: {}", method, path);
+    let request_context = event.request_context();
+    let resource_path = extract_resource_path(&event);
+    info!("Method: {}, Resource Path: {}", method, resource_path);
 
     let user_pool_id = env::var("USER_POOL_ID").expect("USER_POOL_ID is not set");
     let region = env::var("AWS_REGION").expect("AWS_REGION is not set");
@@ -72,7 +84,7 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, B
 
     let is_admin = groups.contains(&"Admin");
 
-    let effect = if is_admin || (method == "POST" && path == "/post") {
+    let effect = if is_admin || (method == "POST" && resource_path == "/post") {
         "Allow"
     } else {
         "Deny"
@@ -91,7 +103,7 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, B
                     env::var("AWS_ACCOUNT_ID")?,
                     env::var("API_GATEWAY_ID")?,
                     method,
-                    path
+                    resource_path
                 )
             }]
         }
