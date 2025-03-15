@@ -78,7 +78,7 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, B
         "Deny"
     };
 
-    let policy = json!({
+    let policy = serde_json::to_string(&json!({
         "principalId": user_id,
         "policyDocument": {
             "Version": "2012-10-17",
@@ -95,12 +95,12 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, B
                 )
             }]
         }
-    });
+    }))?;
 
     info!("Generated policy: {:?}", policy);
 
     Ok(Response::builder()
         .status(200)
-        .header("content-type", "application/json")
-        .body(Body::Text(policy.to_string()))?)
+        .header("Content-Type", "application/json")
+        .body(policy.into())?)
 }
