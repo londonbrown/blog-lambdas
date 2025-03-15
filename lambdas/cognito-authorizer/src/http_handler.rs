@@ -1,9 +1,8 @@
-use lambda_http::{Body, Context, Request, RequestExt, Response};
+use lambda_http::{Request, RequestExt};
 use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
 use reqwest;
 use serde_json::{json, Value};
 use std::env;
-use lambda_http::aws_lambda_events::apigw::ApiGatewayProxyRequestContext;
 use lambda_http::request::{RequestContext};
 use tracing::info;
 
@@ -16,7 +15,7 @@ fn extract_resource_path(request: &Request) -> String {
     }
 }
 
-pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, Box<dyn std::error::Error + Send + Sync>> {
+pub(crate) async fn function_handler(event: Request) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
     info!("Received event: {:?}", event);
 
     info!("Request context: {:?}", event.request_context());
@@ -30,7 +29,6 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, B
     info!("Extracted Authorization header: {}", auth_header);
 
     let method = event.method().as_str();
-    let request_context = event.request_context();
     let resource_path = extract_resource_path(&event);
     info!("Method: {}, Resource Path: {}", method, resource_path);
 
@@ -90,7 +88,7 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, B
         "Deny"
     };
 
-    let policy = serde_json::to_string(&json!({
+    let policy = json!({
         "principalId": user_id,
         "policyDocument": {
             "Version": "2012-10-17",
@@ -107,12 +105,9 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, B
                 )
             }]
         }
-    }))?;
+    });
 
     info!("Generated policy: {:?}", policy);
 
-    Ok(Response::builder()
-        .status(200)
-        .header("Content-Type", "application/json")
-        .body(policy.into())?)
+    Ok(policy)
 }
