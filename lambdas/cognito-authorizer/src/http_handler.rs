@@ -5,7 +5,7 @@ use lambda_http::{Body, Error, Request, Response};
 // use reqwest::Client;
 use serde_json::Value;
 use serde::{Deserialize, Serialize};
-use tracing::log::info;
+use tracing::info;
 
 /// Structure of Cognito JWT Claims
 #[derive(Debug, Deserialize)]
