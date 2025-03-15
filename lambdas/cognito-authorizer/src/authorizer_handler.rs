@@ -22,6 +22,7 @@ pub(crate) async fn function_handler(event: LambdaEvent<ApiGatewayCustomAuthoriz
     info!("Extracted Authorization header: {}", auth_header);
 
     let method = event.payload.http_method.expect("event.payload.http_method is undefined").to_string();
+    let method_arn = event.payload.method_arn.expect("event.payload.method_arn is undefined").to_string();
     let resource_path = event.payload.request_context.resource_path.expect("request_context.resource_path is not set");
     info!("Method: {}, Resource Path: {}", method, resource_path);
 
@@ -89,13 +90,7 @@ pub(crate) async fn function_handler(event: LambdaEvent<ApiGatewayCustomAuthoriz
             statement: vec![IamPolicyStatement {
                 action: vec!["execute-api:Invoke".to_string()],
                 effect,
-                resource: vec![format!(
-                    "arn:aws:execute-api:{}:{}:{}/*/{}",
-                    region,
-                    env::var("AWS_ACCOUNT_ID")?,
-                    env::var("API_GATEWAY_ID")?,
-                    method
-                )],
+                resource: vec![method_arn],
                 ..Default::default()
             }],
         },
