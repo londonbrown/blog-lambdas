@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::env;
 use lambda_http::{Body, Error, Request, Response};
-use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
-use reqwest::Client;
+// use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
+// use reqwest::Client;
 use serde_json::Value;
 use serde::{Deserialize, Serialize};
 use tracing::log::info;
