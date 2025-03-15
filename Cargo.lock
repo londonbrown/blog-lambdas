@@ -542,7 +542,7 @@ dependencies = [
 
 [[package]]
 name = "cognito-authorizer"
-version = "0.0.48"
+version = "0.0.49"
 dependencies = [
  "lambda_http",
  "reqwest",
@@ -579,7 +579,7 @@ dependencies = [
 
 [[package]]
 name = "create-post"
-version = "0.0.48"
+version = "0.0.49"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -605,7 +605,7 @@ dependencies = [
 
 [[package]]
 name = "delete-post"
-version = "0.0.48"
+version = "0.0.49"
 dependencies = [
  "lambda_http",
  "tokio",
@@ -786,7 +786,7 @@ dependencies = [
 
 [[package]]
 name = "get-post"
-version = "0.0.48"
+version = "0.0.49"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -799,7 +799,7 @@ dependencies = [
 
 [[package]]
 name = "get-posts"
-version = "0.0.48"
+version = "0.0.49"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -2014,7 +2014,7 @@ dependencies = [
 
 [[package]]
 name = "shared"
-version = "0.0.48"
+version = "0.0.49"
 dependencies = [
  "aws-sdk-dynamodb",
  "serde",
