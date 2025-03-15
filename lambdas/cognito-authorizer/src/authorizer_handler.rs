@@ -108,5 +108,7 @@ pub(crate) async fn function_handler(event: LambdaEvent<ApiGatewayCustomAuthoriz
         usage_identifier_key: None,
     };
 
+    info!("Policy: {:?}", policy);
+
     Ok(policy)
 }
