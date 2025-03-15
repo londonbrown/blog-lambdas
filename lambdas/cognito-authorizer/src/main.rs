@@ -1,6 +1,6 @@
-use lambda_http::{run, service_fn, tracing, Error};
-mod http_handler;
-use http_handler::function_handler;
+use lambda_runtime::{run, service_fn, tracing, Error};
+mod authorizer_handler;
+use authorizer_handler::function_handler;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {

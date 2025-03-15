@@ -1,35 +1,28 @@
-use lambda_http::{Request, RequestExt};
+use std::collections::HashMap;
 use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
 use reqwest;
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::env;
-use lambda_http::request::{RequestContext};
+use aws_lambda_events::apigw::{ApiGatewayCustomAuthorizerPolicy, ApiGatewayCustomAuthorizerRequestTypeRequest, ApiGatewayCustomAuthorizerResponse};
+use aws_lambda_events::iam::{IamPolicyEffect, IamPolicyStatement};
+use lambda_runtime::LambdaEvent;
 use tracing::info;
 
-fn extract_resource_path(request: &Request) -> String {
-    match request.request_context() {
-        RequestContext::ApiGatewayV1(ctx) => {
-            ctx.resource_path.clone().unwrap_or_else(|| "/".to_string())
-        }
-        _ => "/".to_string(), // Default in case we get an unexpected context
-    }
-}
-
-pub(crate) async fn function_handler(event: Request) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
+pub(crate) async fn function_handler(event: LambdaEvent<ApiGatewayCustomAuthorizerRequestTypeRequest>) -> Result<ApiGatewayCustomAuthorizerResponse<Option<HashMap<String, Value>>>, Box<dyn std::error::Error>> {
     info!("Received event: {:?}", event);
 
-    info!("Request context: {:?}", event.request_context());
+    info!("Event payload: {:?}", event.payload);
 
-    let auth_header = event
-        .headers()
+    let auth_header = event.payload
+        .headers
         .get("authorization")
         .and_then(|value| value.to_str().ok())
         .and_then(|s| s.strip_prefix("Bearer "))
         .ok_or("Missing Authorization header")?;
     info!("Extracted Authorization header: {}", auth_header);
 
-    let method = event.method().as_str();
-    let resource_path = extract_resource_path(&event);
+    let method = event.payload.http_method.expect("event.payload.http_method is undefined").to_string();
+    let resource_path = event.payload.request_context.resource_path.expect("request_context.resource_path is not set");
     info!("Method: {}, Resource Path: {}", method, resource_path);
 
     let user_pool_id = env::var("USER_POOL_ID").expect("USER_POOL_ID is not set");
@@ -83,31 +76,37 @@ pub(crate) async fn function_handler(event: Request) -> Result<Value, Box<dyn st
     let is_admin = groups.contains(&"Admin");
 
     let effect = if is_admin || (method == "POST" && resource_path == "/post") {
-        "Allow"
+        IamPolicyEffect::Allow
     } else {
-        "Deny"
+        IamPolicyEffect::Deny
     };
 
-    let policy = json!({
-        "principalId": user_id,
-        "policyDocument": {
-            "Version": "2012-10-17",
-            "Statement": [{
-                "Action": "execute-api:Invoke",
-                "Effect": effect,
-                "Resource": format!(
+    let policy = ApiGatewayCustomAuthorizerResponse {
+        principal_id: Some(user_id.to_string()),
+
+        policy_document: ApiGatewayCustomAuthorizerPolicy {
+            version: Some("2012-10-17".to_string()),
+            statement: vec![IamPolicyStatement {
+                action: vec!["execute-api:Invoke".to_string()],
+                effect,
+                resource: vec![format!(
                     "arn:aws:execute-api:{}:{}:{}/*/{}{}",
                     region,
                     env::var("AWS_ACCOUNT_ID")?,
                     env::var("API_GATEWAY_ID")?,
                     method,
                     resource_path
-                )
-            }]
-        }
-    });
+                )],
+                ..Default::default()
+            }],
+        },
 
-    info!("Generated policy: {:?}", policy);
+        context: Some(HashMap::from([
+            ("user".to_string(), Value::String(user_id.to_string()))
+        ])),
+
+        usage_identifier_key: None,
+    };
 
     Ok(policy)
 }

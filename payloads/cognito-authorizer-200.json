@@ -1,0 +1,16 @@
+{
+  "type": "REQUEST",
+  "methodArn": "arn:aws:execute-api:us-east-1:123456789012:abcdef123/prod/DELETE/post",
+  "resource": "/post",
+  "path": "/post",
+  "httpMethod": "DELETE",
+  "headers": {
+    "Authorization": "Bearer YOUR_TOKEN"
+  },
+  "requestContext": {
+    "path": "/post",
+    "stage": "prod",
+    "resourcePath": "/post",
+    "httpMethod": "DELETE"
+  }
+}
