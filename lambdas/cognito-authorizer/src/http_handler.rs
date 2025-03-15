@@ -1,4 +1,4 @@
-use lambda_http::{Body, Request, Response};
+use lambda_http::{Body, Request, RequestExt, Response};
 use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
 use reqwest;
 use serde_json::{json, Value};
@@ -7,6 +7,8 @@ use tracing::info;
 
 pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, Box<dyn std::error::Error + Send + Sync>> {
     info!("Received event: {:?}", event);
+
+    info!("Request context: {:?}", event.request_context());
 
     let auth_header = event
         .headers()
@@ -20,8 +22,8 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, B
     let path = event.uri().path();
     info!("Method: {}, Path: {}", method, path);
 
-    let user_pool_id = env::var("USER_POOL_ID")?;
-    let region = env::var("AWS_REGION")?;
+    let user_pool_id = env::var("USER_POOL_ID").expect("USER_POOL_ID is not set");
+    let region = env::var("AWS_REGION").expect("AWS_REGION is not set");
 
     let jwks_url = format!(
         "https://cognito-idp.{}.amazonaws.com/{}/.well-known/jwks.json",
@@ -61,8 +63,14 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, B
     info!("Decoded claims: {:?}", claims);
 
     let user_id = claims["sub"].as_str().unwrap_or("unknown-user");
-    let groups = claims["cognito:groups"].as_str().unwrap_or("");
-    let is_admin = groups.contains("Admin");
+    let groups = claims["cognito:groups"]
+        .as_array()
+        .map(|arr| arr.iter().filter_map(|v| v.as_str()).collect::<Vec<_>>())
+        .unwrap_or_default();
+
+    info!("User groups: {:?}", groups);
+
+    let is_admin = groups.contains(&"Admin");
 
     let effect = if is_admin || (method == "POST" && path == "/post") {
         "Allow"
