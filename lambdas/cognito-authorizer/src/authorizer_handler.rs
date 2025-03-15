@@ -90,12 +90,11 @@ pub(crate) async fn function_handler(event: LambdaEvent<ApiGatewayCustomAuthoriz
                 action: vec!["execute-api:Invoke".to_string()],
                 effect,
                 resource: vec![format!(
-                    "arn:aws:execute-api:{}:{}:{}/*/{}{}",
+                    "arn:aws:execute-api:{}:{}:{}/*/{}",
                     region,
                     env::var("AWS_ACCOUNT_ID")?,
                     env::var("API_GATEWAY_ID")?,
-                    method,
-                    resource_path
+                    method
                 )],
                 ..Default::default()
             }],
