@@ -1,5 +1,6 @@
-use lambda_http::aws_lambda_events::apigw::{ApiGatewayProxyRequest, ApiGatewayProxyResponse, ApiGatewayV2httpRequest};
-use lambda_http::{Body, LambdaEvent};
+use aws_lambda_events::apigw::{ApiGatewayProxyRequest, ApiGatewayProxyResponse};
+use aws_lambda_events::encodings::Body;
+use lambda_runtime::{LambdaEvent};
 use tracing::info;
 
 pub(crate) async fn function_handler(event: LambdaEvent<ApiGatewayProxyRequest>) -> Result<ApiGatewayProxyResponse, Box<dyn std::error::Error>> {

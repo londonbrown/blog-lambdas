@@ -905,9 +905,10 @@ checksum = "07e28edb80900c19c28f1072f2e8aeca7fa06b23cd4169cefe1af5aa3260783f"
 
 [[package]]
 name = "guest-jwt-generator"
-version = "0.0.67"
+version = "0.0.68"
 dependencies = [
- "lambda_http",
+ "aws_lambda_events",
+ "lambda_runtime",
  "tokio",
  "tracing",
 ]
