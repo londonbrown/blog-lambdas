@@ -547,7 +547,7 @@ dependencies = [
 
 [[package]]
 name = "cognito-authorizer"
-version = "0.0.65"
+version = "0.0.66"
 dependencies = [
  "aws_lambda_events",
  "jsonwebtoken",
@@ -595,7 +595,7 @@ dependencies = [
 
 [[package]]
 name = "create-post"
-version = "0.0.65"
+version = "0.0.66"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -656,7 +656,7 @@ dependencies = [
 
 [[package]]
 name = "delete-post"
-version = "0.0.65"
+version = "0.0.66"
 dependencies = [
  "lambda_http",
  "tokio",
@@ -848,7 +848,7 @@ dependencies = [
 
 [[package]]
 name = "get-post"
-version = "0.0.65"
+version = "0.0.66"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -861,7 +861,7 @@ dependencies = [
 
 [[package]]
 name = "get-posts"
-version = "0.0.65"
+version = "0.0.66"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -1650,7 +1650,7 @@ dependencies = [
 
 [[package]]
 name = "pretoken-generation"
-version = "0.0.65"
+version = "0.0.66"
 dependencies = [
  "aws_lambda_events",
  "jsonwebtoken",
@@ -2179,7 +2179,7 @@ dependencies = [
 
 [[package]]
 name = "shared"
-version = "0.0.65"
+version = "0.0.66"
 dependencies = [
  "aws-sdk-dynamodb",
  "serde",
