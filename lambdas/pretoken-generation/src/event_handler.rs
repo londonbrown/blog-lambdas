@@ -11,7 +11,7 @@ pub(crate) async fn function_handler(event: LambdaEvent<CognitoEventUserPoolsPre
     info!("Pre Token Generation Triggered: {:?}", request);
 
     let api_blog_domain = env::var("API_BLOG_DOMAIN").expect("API_BLOG_DOMAIN is not set");
-    let api_blog_domain_url = format!("https://{}/", api_blog_domain);
+    let api_blog_domain_url = format!("https://{}", api_blog_domain);
 
     let group_to_scope_map: HashMap<&str, Vec<String>> = HashMap::from([
         ("admin", vec![
