@@ -5,6 +5,8 @@ use lambda_runtime::LambdaEvent;
 use tracing::info;
 
 pub(crate) async fn function_handler(event: LambdaEvent<CognitoEventUserPoolsPreTokenGenV2>) -> Result<CognitoEventUserPoolsPreTokenGenV2, Box<dyn std::error::Error>> {
+    info!("Full event: {:?}", event);
+
     let request = event.payload.request;
     info!("Pre Token Generation Triggered: {:?}", request);
 
