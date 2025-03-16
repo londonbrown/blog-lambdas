@@ -1,18 +1,18 @@
 use std::collections::HashMap;
 use std::env;
-use aws_lambda_events::cognito::{ClaimsAndScopeOverrideDetailsV2, CognitoAccessTokenGenerationV2, CognitoEventUserPoolsPreTokenGenRequestV2, CognitoEventUserPoolsPreTokenGenResponseV2};
+use aws_lambda_events::cognito::{ClaimsAndScopeOverrideDetailsV2, CognitoAccessTokenGenerationV2, CognitoEventUserPoolsPreTokenGenResponseV2, CognitoEventUserPoolsPreTokenGenV2};
 use lambda_runtime::LambdaEvent;
 use tracing::info;
 
-pub(crate) async fn function_handler(event: LambdaEvent<CognitoEventUserPoolsPreTokenGenRequestV2>) -> Result<CognitoEventUserPoolsPreTokenGenResponseV2, Box<dyn std::error::Error>> {
-    let request = event.payload;
+pub(crate) async fn function_handler(event: LambdaEvent<CognitoEventUserPoolsPreTokenGenV2>) -> Result<CognitoEventUserPoolsPreTokenGenV2, Box<dyn std::error::Error>> {
+    let request = event.payload.request;
     info!("Pre Token Generation Triggered: {:?}", request);
 
     let api_blog_domain = env::var("API_BLOG_DOMAIN").expect("API_BLOG_DOMAIN is not set");
     let api_blog_domain_url = format!("https://{}/", api_blog_domain);
 
     let group_to_scope_map: HashMap<&str, Vec<String>> = HashMap::from([
-        ("Admin", vec![
+        ("admin", vec![
             format!("{}/post.read", api_blog_domain_url),
             format!("{}/post.write", api_blog_domain_url),
             format!("{}/post.delete", api_blog_domain_url),
@@ -20,19 +20,19 @@ pub(crate) async fn function_handler(event: LambdaEvent<CognitoEventUserPoolsPre
             format!("{}/comment.write", api_blog_domain_url),
             format!("{}/comment.delete", api_blog_domain_url),
         ]),
-        ("Author", vec![
+        ("author", vec![
             format!("{}/post.read", api_blog_domain_url),
             format!("{}/post.write", api_blog_domain_url),
             format!("{}/comment.read", api_blog_domain_url),
             format!("{}/comment.write", api_blog_domain_url),
             format!("{}/comment.delete", api_blog_domain_url),
         ]),
-        ("Commenter", vec![
+        ("commenter", vec![
             format!("{}/comment.read", api_blog_domain_url),
             format!("{}/comment.write", api_blog_domain_url),
             format!("{}/comment.delete", api_blog_domain_url),
         ]),
-        ("Guest", vec![
+        ("guest", vec![
             format!("{}/post.read", api_blog_domain_url),
             format!("{}/comment.read", api_blog_domain_url),
         ]),
@@ -40,7 +40,7 @@ pub(crate) async fn function_handler(event: LambdaEvent<CognitoEventUserPoolsPre
 
     let mut assigned_scopes = Vec::new();
 
-    for group in request.group_configuration.groups_to_override {
+    for group in request.group_configuration.groups_to_override.clone() {
         if let Some(scopes) = group_to_scope_map.get(group.as_str()) {
             assigned_scopes.extend_from_slice(scopes);
         }
@@ -58,5 +58,9 @@ pub(crate) async fn function_handler(event: LambdaEvent<CognitoEventUserPoolsPre
 
     info!("Modified Scopes: {:?}", response);
 
-    Ok(response)
+    Ok(CognitoEventUserPoolsPreTokenGenV2 {
+        cognito_event_user_pools_header: event.payload.cognito_event_user_pools_header,
+        request,
+        response
+    })
 }
