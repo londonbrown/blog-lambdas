@@ -1650,7 +1650,7 @@ dependencies = [
 
 [[package]]
 name = "pretoken-generation"
-version = "0.0.62"
+version = "0.0.63"
 dependencies = [
  "aws_lambda_events",
  "jsonwebtoken",
