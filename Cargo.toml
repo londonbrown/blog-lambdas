@@ -1,5 +1,5 @@
 [workspace]
-members = [ "lambdas/cognito-authorizer", "lambdas/create-post", "lambdas/delete-post","lambdas/get-post", "lambdas/get-posts", "shared"]
+members = [ "lambdas/*", "shared"]
 resolver = "2"
 
 [workspace.package]

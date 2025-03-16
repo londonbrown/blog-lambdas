@@ -1649,6 +1649,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "pretoken-generation"
+version = "0.0.62"
+dependencies = [
+ "aws_lambda_events",
+ "jsonwebtoken",
+ "lambda_runtime",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.94"
 source = "registry+https://github.com/rust-lang/crates.io-index"
