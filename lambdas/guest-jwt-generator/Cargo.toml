@@ -7,7 +7,13 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+aws-config.workspace = true
+aws-sdk-cognitoidentityprovider.workspace = true
+aws-sdk-secretsmanager.workspace = true
+serde.workspace = true
+serde_json.workspace = true
 aws_lambda_events.workspace = true
 lambda_runtime.workspace = true
 tracing.workspace = true
 tokio.workspace = true
+chrono.workspace = true
