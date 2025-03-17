@@ -4,32 +4,42 @@ use aws_lambda_events::cognito::{ClaimsAndScopeOverrideDetailsV2, CognitoAccessT
 use lambda_runtime::LambdaEvent;
 use tracing::info;
 
+fn get_group_key(group: &str, stage: &str) -> String {
+    if stage == "Prod" {
+        group.to_string()
+    } else {
+        format!("{}+{}", group, stage)
+    }
+}
+
 pub(crate) async fn function_handler(event: LambdaEvent<CognitoEventUserPoolsPreTokenGenV2>) -> Result<CognitoEventUserPoolsPreTokenGenV2, Box<dyn std::error::Error>> {
     info!("Full event: {:?}", event);
 
     let request = event.payload.request;
     info!("Pre Token Generation Triggered: {:?}", request);
 
+    let stage = env::var("STAGE").expect("STAGE is not set");
+
     let api_blog_domain = env::var("API_BLOG_DOMAIN").expect("API_BLOG_DOMAIN is not set");
     let api_blog_domain_url = format!("https://{}", api_blog_domain);
 
-    let group_to_scope_map: HashMap<&str, Vec<String>> = HashMap::from([
-        ("admin", vec![
+    let group_to_scope_map: HashMap<String, Vec<String>> = HashMap::from([
+        (get_group_key("blog-admin", &stage), vec![
             format!("{}/admin.read", api_blog_domain_url),
             format!("{}/admin.write", api_blog_domain_url),
             format!("{}/admin.delete", api_blog_domain_url)
         ]),
-        ("author", vec![
+        (get_group_key("blog-author", &stage), vec![
             format!("{}/author.read", api_blog_domain_url),
             format!("{}/author.write", api_blog_domain_url),
             format!("{}/author.delete", api_blog_domain_url)
         ]),
-        ("commenter", vec![
+        (get_group_key("blog-commenter", &stage), vec![
             format!("{}/commenter.read", api_blog_domain_url),
             format!("{}/commenter.write", api_blog_domain_url),
             format!("{}/commenter.delete", api_blog_domain_url)
         ]),
-        ("guest", vec![
+        (get_group_key("blog-guest", &stage), vec![
             format!("{}/guest.read", api_blog_domain_url),
             format!("{}/guest.write", api_blog_domain_url),
             format!("{}/guest.delete", api_blog_domain_url)

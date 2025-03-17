@@ -16,7 +16,7 @@
       "email": "londonchaim@gmail.com"
     },
     "groupConfiguration": {
-      "groupsToOverride": ["admin"],
+      "groupsToOverride": ["blog-admin"],
       "iamRolesToOverride": [],
       "preferredRole": null
     },
