@@ -1,29 +1,46 @@
-use std::env;
+use aws_lambda_events::apigw::{ApiGatewayProxyRequest, ApiGatewayProxyResponse};
 use aws_sdk_dynamodb::Client;
 use chrono::Utc;
-use lambda_http::{Body, Request, RequestExt, Response};
-use tracing::info;
-use shared::models::{BlogPost, PostRequest};
-use uuid::Uuid;
+use lambda_runtime::LambdaEvent;
 use shared::db::create_post;
+use shared::models::{BlogPost, PostRequest};
+use std::env;
+use aws_lambda_events::encodings::Body;
+use tracing::info;
+use uuid::Uuid;
 
-pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, Box<dyn std::error::Error + Send + Sync>> {
-    let request_context = event.request_context();
+pub(crate) async fn function_handler(
+    event: LambdaEvent<ApiGatewayProxyRequest>,
+) -> Result<ApiGatewayProxyResponse, Box<dyn std::error::Error + Send + Sync>> {
+    let request = event.payload;
+    let request_context = request.request_context;
+    let body = request.body.ok_or("Missing body")?;
     info!("Full Request Context: {:?}", request_context);
+    info!("Body: {:?}", body);
 
-    let authorizer = request_context.authorizer().ok_or("Missing authorizer context")?;
-    info!("Authorizer: {:?}", authorizer);
-
-    let author_id = authorizer
+    let fields = request_context
+        .authorizer
         .fields
-        .get("user")
-        .map(|v| v.to_string())
-        .ok_or("Missing user in fields")?;
+        .get("fields")
+        .ok_or("Missing fields in request context")?;
 
-    let body = event.body();
-    let body_str = std::str::from_utf8(body)?;
+    info!("Fields: {:?}", fields);
 
-    let post_request: PostRequest = serde_json::from_str(body_str)?;
+    let claims = fields
+        .get("claims")
+        .ok_or("Missing claims in fields");
+
+    info!("Claims: {:?}", claims);
+
+    let author_id = claims?
+        .get("sub")
+        .ok_or("Missing sub in claims")?;
+
+    info!("Author id: {:?}", author_id);
+
+    let post_request: PostRequest = serde_json::from_str(&body)?;
+
+    info!("Post request: {:?}", post_request);
 
     let post_id = format!("post-{}", Uuid::new_v4());
     let created_at = Utc::now().to_rfc3339();
@@ -32,6 +49,8 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, B
 
     let client = Client::new(&aws_config::load_from_env().await);
     let table_name = env::var("BLOG_POSTS_TABLE").expect("BLOG_POSTS_TABLE not set");
+
+    info!("Table name: {:?}", table_name);
 
     let blog_post = BlogPost {
         pk: post_pk.clone(),
@@ -44,15 +63,22 @@ pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, B
         content_key,
     };
 
+    info!("Blog post: {:?}", blog_post);
 
     match create_post(&client, &table_name, &blog_post).await {
-        Ok(_) => Ok(Response::builder()
-            .status(201)
-            .body(Body::Text(format!("{{\"post_id\": \"{}\"}}", post_pk)))
-            .unwrap()),
-        Err(err) => Ok(Response::builder()
-            .status(409) // 409 Conflict
-            .body(Body::Text(format!("{{\"error\": \"{}\"}}", err)))
-            .unwrap()),
+        Ok(_) => Ok(
+            ApiGatewayProxyResponse {
+                status_code: 201,
+                body: Some(Body::Text(format!("{{\"post_id\": \"{}\"}}", post_pk))),
+                ..Default::default()
+            }
+        ),
+        Err(err) => Ok(
+            ApiGatewayProxyResponse {
+                status_code: 409,
+                body: Some(Body::Text(format!("{{\"error\": \"{}\"}}", err))),
+                ..Default::default()
+            }
+        ),
     }
 }

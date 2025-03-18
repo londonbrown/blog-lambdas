@@ -9,7 +9,8 @@ repository.workspace = true
 [dependencies]
 aws-config.workspace = true
 aws-sdk-dynamodb.workspace = true
-lambda_http.workspace = true
+aws_lambda_events.workspace = true
+lambda_runtime.workspace = true
 tokio.workspace = true
 serde.workspace = true
 serde_json.workspace = true

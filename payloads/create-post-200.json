@@ -1,20 +1,16 @@
 {
-  "version": "2.0",
-  "routeKey": "$default",
-  "rawPath": "/post",
-  "rawQueryString": "",
+  "resource": "/post",
+  "path": "/post",
+  "httpMethod": "POST",
   "requestContext": {
-    "http": {
-      "method": "POST",
-      "path": "/post"
-    },
     "authorizer": {
-      "jwt": {
+      "fields": {
         "claims": {
           "sub": "74a83468-c0c1-70dc-3a02-0f88012d3238"
         }
       }
-    }
+    },
+    "httpMethod": "POST"
   },
   "body": "{ \"title\": \"My First Blog Post\", \"content\": \"This is a test post.\", \"tags\": [\"AWS\"], \"published\": \"true\" }",
   "isBase64Encoded": false
