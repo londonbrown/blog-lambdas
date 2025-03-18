@@ -13,10 +13,11 @@ pub(crate) async fn function_handler(
     event: LambdaEvent<ApiGatewayProxyRequest>,
 ) -> Result<ApiGatewayProxyResponse, Box<dyn std::error::Error + Send + Sync>> {
     let request = event.payload;
+    info!("JSON of request: {:#?}", serde_json::to_string(&request));
     let request_context = request.request_context;
     let body = request.body.ok_or("Missing body")?;
-    info!("Full Request Context: {:?}", request_context);
-    info!("Body: {:?}", body);
+    info!("Full Request Context: {:#?}", request_context);
+    info!("Body: {:#?}", body);
 
     let fields = request_context
         .authorizer
@@ -24,23 +25,23 @@ pub(crate) async fn function_handler(
         .get("fields")
         .ok_or("Missing fields in request context")?;
 
-    info!("Fields: {:?}", fields);
+    info!("Fields: {:#?}", fields);
 
     let claims = fields
         .get("claims")
         .ok_or("Missing claims in fields");
 
-    info!("Claims: {:?}", claims);
+    info!("Claims: {:#?}", claims);
 
     let author_id = claims?
         .get("sub")
         .ok_or("Missing sub in claims")?;
 
-    info!("Author id: {:?}", author_id);
+    info!("Author id: {:#?}", author_id);
 
     let post_request: PostRequest = serde_json::from_str(&body)?;
 
-    info!("Post request: {:?}", post_request);
+    info!("Post request: {:#?}", post_request);
 
     let post_id = format!("post-{}", Uuid::new_v4());
     let created_at = Utc::now().to_rfc3339();
