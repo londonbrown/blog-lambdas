@@ -13,32 +13,22 @@ pub(crate) async fn function_handler(
     event: LambdaEvent<ApiGatewayProxyRequest>,
 ) -> Result<ApiGatewayProxyResponse, Box<dyn std::error::Error + Send + Sync>> {
     let request = event.payload;
-    info!("JSON of request: {:#?}", serde_json::to_string(&request));
+
     let request_context = request.request_context;
     let body = request.body.ok_or("Missing body")?;
-    info!("Full Request Context: {:#?}", request_context);
-    info!("Body: {:#?}", body);
 
     let fields = request_context
         .authorizer
-        .fields
-        .get("fields")
-        .ok_or("Missing fields in request context")?;
-
-    info!("Fields: {:#?}", fields);
-
+        .fields;
+    
     let claims = fields
         .get("claims")
         .ok_or("Missing claims in fields");
-
-    info!("Claims: {:#?}", claims);
-
+    
     let author_id = claims?
         .get("sub")
         .ok_or("Missing sub in claims")?;
-
-    info!("Author id: {:#?}", author_id);
-
+    
     let post_request: PostRequest = serde_json::from_str(&body)?;
 
     info!("Post request: {:#?}", post_request);
@@ -50,9 +40,7 @@ pub(crate) async fn function_handler(
 
     let client = Client::new(&aws_config::load_from_env().await);
     let table_name = env::var("BLOG_POSTS_TABLE").expect("BLOG_POSTS_TABLE not set");
-
-    info!("Table name: {:?}", table_name);
-
+    
     let blog_post = BlogPost {
         pk: post_pk.clone(),
         sk: "META".to_string(),

@@ -3,15 +3,15 @@
   "path": "/post",
   "httpMethod": "POST",
   "requestContext": {
+    "resourcePath": "/post",
+    "path": "/post",
     "authorizer": {
-      "fields": {
-        "claims": {
-          "sub": "74a83468-c0c1-70dc-3a02-0f88012d3238"
-        }
+      "claims": {
+        "sub": "74a83468-c0c1-70dc-3a02-0f88012d3238"
       }
     },
     "httpMethod": "POST"
   },
-  "body": "{ \"title\": \"My First Blog Post\", \"content\": \"This is a test post.\", \"tags\": [\"AWS\"], \"published\": \"true\" }",
+  "body": "{\r\n\"title\": \"New Blog Post\",\r\n\"content\": \"This is my second blog post using Cognito authentication!\",\r\n\"published\": \"true\",\r\n\"tags\": [\"AWS\"]\r\n}\r\n",
   "isBase64Encoded": false
 }
