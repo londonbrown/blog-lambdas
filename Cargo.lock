@@ -680,20 +680,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cognito-authorizer"
-version = "0.0.79"
-dependencies = [
- "aws_lambda_events",
- "jsonwebtoken",
- "lambda_runtime",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "core-foundation"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
