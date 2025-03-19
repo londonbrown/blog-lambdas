@@ -16,25 +16,29 @@ pub(crate) async fn function_handler(
     let table_name = env::var("BLOG_POSTS_TABLE").expect("BLOG_POSTS_TABLE not set");
 
     let path_parameters = event.payload.path_parameters;
-    let post_id = path_parameters.get("id").ok_or("Missing post id")?;
+
+    let mut header_map = HeaderMap::new();
+    header_map.insert(CONTENT_TYPE, "application/json".parse().unwrap());
+
+    let post_id = path_parameters.get("id").cloned().unwrap_or_default();
     if post_id.is_empty() {
+        let error = serde_json::to_string(&ApiErrorResponse::new("Missing post id"))?;
         return Ok(ApiGatewayProxyResponse {
             status_code: 400,
-            body: Some(Body::Text(serde_json::to_string(&ApiErrorResponse::new(
-                "Missing post id",
-            ))?)),
+            headers: header_map,
+            body: Some(Body::Text(error)),
             ..Default::default()
         });
     }
 
-    let (meta, comments) = fetch_post_and_comments(&client, &table_name, post_id).await;
+    let (meta, comments) = fetch_post_and_comments(&client, &table_name, &post_id).await;
 
     if meta.is_none() {
+        let error = serde_json::to_string(&ApiErrorResponse::new("Post not found"))?;
         return Ok(ApiGatewayProxyResponse {
             status_code: 404,
-            body: Some(Body::Text(serde_json::to_string(&ApiErrorResponse::new(
-                "Post not found",
-            ))?)),
+            headers: header_map,
+            body: Some(Body::Text(error)),
             ..Default::default()
         });
     }
@@ -43,9 +47,6 @@ pub(crate) async fn function_handler(
         "meta": meta,
         "comments": comments
     });
-
-    let mut header_map = HeaderMap::new();
-    header_map.insert(CONTENT_TYPE, "application/json".parse().unwrap());
 
     Ok(ApiGatewayProxyResponse {
         status_code: 200,

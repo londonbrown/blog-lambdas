@@ -1,13 +1,12 @@
 {
-  "version": "2.0",
+  "resource": "/post/{id}",
   "routeKey": "$default",
-  "rawPath": "/post/post-000",
-  "rawQueryString": "",
+  "path": "/post/post-000",
+  "httpMethod": "GET",
   "requestContext": {
-    "http": {
-      "method": "GET",
-      "path": "/post/post-000"
-    }
+    "resourcePath": "/post/{id}",
+    "httpMethod": "GET",
+    "path": "/post/post-000"
   },
   "pathParameters": {
     "id": "post-000"

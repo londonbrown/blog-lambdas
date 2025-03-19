@@ -1,13 +1,12 @@
 {
-  "version": "2.0",
+  "resource": "/post/{id}",
   "routeKey": "$default",
-  "rawPath": "/post/",
-  "rawQueryString": "",
+  "path": "/post/",
+  "httpMethod": "GET",
   "requestContext": {
-    "http": {
-      "method": "GET",
-      "path": "/post/"
-    }
+    "resourcePath": "/post/{id}",
+    "httpMethod": "GET",
+    "path": "/post/"
   },
   "pathParameters": {},
   "isBase64Encoded": false
