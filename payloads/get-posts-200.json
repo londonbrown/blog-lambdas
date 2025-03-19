@@ -1,13 +1,13 @@
 {
-  "version": "2.0",
+  "resource": "/posts",
   "routeKey": "$default",
-  "rawPath": "/posts",
+  "path": "/posts",
+  "httpMethod": "GET",
   "rawQueryString": "limit=5",
   "requestContext": {
-    "http": {
-      "method": "GET",
-      "path": "/posts"
-    }
+    "resourcePath": "/posts",
+    "httpMethod": "GET",
+    "path": "/posts"
   },
   "queryStringParameters": {
     "limit": "5"
