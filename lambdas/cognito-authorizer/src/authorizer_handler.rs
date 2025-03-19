@@ -1,19 +1,28 @@
-use std::collections::HashMap;
+use aws_lambda_events::apigw::{
+    ApiGatewayCustomAuthorizerPolicy, ApiGatewayCustomAuthorizerRequestTypeRequest,
+    ApiGatewayCustomAuthorizerResponse,
+};
+use aws_lambda_events::iam::{IamPolicyEffect, IamPolicyStatement};
 use jsonwebtoken::{decode, decode_header, Algorithm, DecodingKey, Validation};
+use lambda_runtime::LambdaEvent;
 use reqwest;
 use serde_json::Value;
+use std::collections::HashMap;
 use std::env;
-use aws_lambda_events::apigw::{ApiGatewayCustomAuthorizerPolicy, ApiGatewayCustomAuthorizerRequestTypeRequest, ApiGatewayCustomAuthorizerResponse};
-use aws_lambda_events::iam::{IamPolicyEffect, IamPolicyStatement};
-use lambda_runtime::LambdaEvent;
 use tracing::info;
 
-pub(crate) async fn function_handler(event: LambdaEvent<ApiGatewayCustomAuthorizerRequestTypeRequest>) -> Result<ApiGatewayCustomAuthorizerResponse<Option<HashMap<String, Value>>>, Box<dyn std::error::Error>> {
+pub(crate) async fn function_handler(
+    event: LambdaEvent<ApiGatewayCustomAuthorizerRequestTypeRequest>,
+) -> Result<
+    ApiGatewayCustomAuthorizerResponse<Option<HashMap<String, Value>>>,
+    Box<dyn std::error::Error>,
+> {
     info!("Received event: {:?}", event);
 
     info!("Event payload: {:?}", event.payload);
 
-    let auth_header = event.payload
+    let auth_header = event
+        .payload
         .headers
         .get("authorization")
         .and_then(|value| value.to_str().ok())
@@ -21,9 +30,21 @@ pub(crate) async fn function_handler(event: LambdaEvent<ApiGatewayCustomAuthoriz
         .ok_or("Missing Authorization header")?;
     info!("Extracted Authorization header: {}", auth_header);
 
-    let method = event.payload.http_method.expect("event.payload.http_method is undefined").to_string();
-    let method_arn = event.payload.method_arn.expect("event.payload.method_arn is undefined").to_string();
-    let resource_path = event.payload.request_context.resource_path.expect("request_context.resource_path is not set");
+    let method = event
+        .payload
+        .http_method
+        .expect("event.payload.http_method is undefined")
+        .to_string();
+    let method_arn = event
+        .payload
+        .method_arn
+        .expect("event.payload.method_arn is undefined")
+        .to_string();
+    let resource_path = event
+        .payload
+        .request_context
+        .resource_path
+        .expect("request_context.resource_path is not set");
     info!("Method: {}, Resource Path: {}", method, resource_path);
 
     let user_pool_id = env::var("USER_POOL_ID").expect("USER_POOL_ID is not set");
@@ -54,7 +75,10 @@ pub(crate) async fn function_handler(event: LambdaEvent<ApiGatewayCustomAuthoriz
     info!("e: {}", e);
 
     let expected_audience = env::var("COGNITO_CLIENT_ID").expect("COGNITO_CLIENT_ID not set");
-    let expected_issuer = format!("https://cognito-idp.{}.amazonaws.com/{}", region, user_pool_id);
+    let expected_issuer = format!(
+        "https://cognito-idp.{}.amazonaws.com/{}",
+        region, user_pool_id
+    );
 
     let decoding_key = DecodingKey::from_rsa_components(n, e)?;
     let mut validation = Validation::new(Algorithm::RS256);
@@ -95,9 +119,10 @@ pub(crate) async fn function_handler(event: LambdaEvent<ApiGatewayCustomAuthoriz
             }],
         },
 
-        context: Some(HashMap::from([
-            ("user".to_string(), Value::String(user_id.to_string()))
-        ])),
+        context: Some(HashMap::from([(
+            "user".to_string(),
+            Value::String(user_id.to_string()),
+        )])),
 
         usage_identifier_key: None,
     };

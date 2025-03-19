@@ -1,17 +1,23 @@
-use lambda_http::{Body, Request, RequestExt, Response};
 use aws_sdk_dynamodb::Client;
-use std::env;
+use lambda_http::{Body, Request, RequestExt, Response};
 use serde_json::json;
-use shared::db::{fetch_published_posts};
+use shared::db::fetch_published_posts;
 use shared::errors::ApiErrorResponse;
+use std::env;
 
-pub(crate) async fn function_handler(event: Request) -> Result<Response<Body>, Box<dyn std::error::Error + Send + Sync>> {
+pub(crate) async fn function_handler(
+    event: Request,
+) -> Result<Response<Body>, Box<dyn std::error::Error + Send + Sync>> {
     let client = Client::new(&aws_config::load_from_env().await);
     let table_name = env::var("BLOG_POSTS_TABLE").expect("BLOG_POSTS_TABLE not set");
 
     let query_string_parameters = event.query_string_parameters();
-    let limit = query_string_parameters.first("limit").and_then(|l| l.parse().ok());
-    let next_token = query_string_parameters.first("nextToken").map(|s| s.to_string());
+    let limit = query_string_parameters
+        .first("limit")
+        .and_then(|l| l.parse().ok());
+    let next_token = query_string_parameters
+        .first("nextToken")
+        .map(|s| s.to_string());
 
     let (posts, next_token) = fetch_published_posts(&client, &table_name, limit, next_token).await;
 

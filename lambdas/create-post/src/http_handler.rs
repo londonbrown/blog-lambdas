@@ -1,11 +1,11 @@
 use aws_lambda_events::apigw::{ApiGatewayProxyRequest, ApiGatewayProxyResponse};
+use aws_lambda_events::encodings::Body;
 use aws_sdk_dynamodb::Client;
 use chrono::Utc;
 use lambda_runtime::LambdaEvent;
 use shared::db::create_post;
 use shared::models::{BlogPost, PostRequest};
 use std::env;
-use aws_lambda_events::encodings::Body;
 use tracing::info;
 use uuid::Uuid;
 
@@ -17,20 +17,16 @@ pub(crate) async fn function_handler(
     let request_context = request.request_context;
     let body = request.body.ok_or("Missing body")?;
 
-    let fields = request_context
-        .authorizer
-        .fields;
-    
-    let claims = fields
-        .get("claims")
-        .ok_or("Missing claims in fields");
-    
+    let fields = request_context.authorizer.fields;
+
+    let claims = fields.get("claims").ok_or("Missing claims in fields");
+
     let author_id = claims?
         .get("sub")
         .ok_or("Missing sub in claims")?
         .as_str()
         .ok_or("sub is not defined")?;
-    
+
     let post_request: PostRequest = serde_json::from_str(&body)?;
 
     info!("Post request: {:#?}", post_request);
@@ -42,7 +38,7 @@ pub(crate) async fn function_handler(
 
     let client = Client::new(&aws_config::load_from_env().await);
     let table_name = env::var("BLOG_POSTS_TABLE").expect("BLOG_POSTS_TABLE not set");
-    
+
     let blog_post = BlogPost {
         pk: post_pk.clone(),
         sk: "META".to_string(),
@@ -57,19 +53,15 @@ pub(crate) async fn function_handler(
     info!("Blog post: {:?}", blog_post);
 
     match create_post(&client, &table_name, &blog_post).await {
-        Ok(_) => Ok(
-            ApiGatewayProxyResponse {
-                status_code: 201,
-                body: Some(Body::Text(format!("{{\"post_id\": \"{}\"}}", post_pk))),
-                ..Default::default()
-            }
-        ),
-        Err(err) => Ok(
-            ApiGatewayProxyResponse {
-                status_code: 409,
-                body: Some(Body::Text(format!("{{\"error\": \"{}\"}}", err))),
-                ..Default::default()
-            }
-        ),
+        Ok(_) => Ok(ApiGatewayProxyResponse {
+            status_code: 201,
+            body: Some(Body::Text(format!("{{\"post_id\": \"{}\"}}", post_pk))),
+            ..Default::default()
+        }),
+        Err(err) => Ok(ApiGatewayProxyResponse {
+            status_code: 409,
+            body: Some(Body::Text(format!("{{\"error\": \"{}\"}}", err))),
+            ..Default::default()
+        }),
     }
 }

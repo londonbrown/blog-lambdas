@@ -1,13 +1,15 @@
-use std::collections::HashMap;
-use aws_sdk_dynamodb::Client;
+use crate::models::{BlogPost, Comment};
 use aws_sdk_dynamodb::error::SdkError;
 use aws_sdk_dynamodb::types::AttributeValue;
-use crate::models::{BlogPost, Comment};
+use aws_sdk_dynamodb::Client;
 use serde_dynamo::{from_item, from_items, to_item};
+use std::collections::HashMap;
 use tracing::info;
 use tracing::log::error;
 
-pub fn extract_next_token(last_evaluated_key: Option<HashMap<String, AttributeValue>>) -> Option<String> {
+pub fn extract_next_token(
+    last_evaluated_key: Option<HashMap<String, AttributeValue>>,
+) -> Option<String> {
     last_evaluated_key.and_then(|mut key| {
         let pk_value = key.remove("PK")?;
         let sk_value = key.remove("SK")?;
@@ -19,11 +21,15 @@ pub fn extract_next_token(last_evaluated_key: Option<HashMap<String, AttributeVa
     })
 }
 
-
-pub async fn fetch_post_and_comments(client: &Client, table_name: &str, post_id: &str) -> (Option<BlogPost>, Vec<Comment>) {
+pub async fn fetch_post_and_comments(
+    client: &Client,
+    table_name: &str,
+    post_id: &str,
+) -> (Option<BlogPost>, Vec<Comment>) {
     let partition_key = format!("POST#{}", post_id);
 
-    let result = client.query()
+    let result = client
+        .query()
         .table_name(table_name)
         .key_condition_expression("PK = :pk")
         .expression_attribute_values(":pk", AttributeValue::S(partition_key.to_string()))
@@ -56,7 +62,8 @@ pub async fn fetch_post_and_comments(client: &Client, table_name: &str, post_id:
 pub async fn create_post(client: &Client, table_name: &str, post: &BlogPost) -> Result<(), String> {
     let partition_key = post.pk.clone();
 
-    let existing_post = client.get_item()
+    let existing_post = client
+        .get_item()
         .table_name(table_name)
         .key("PK", AttributeValue::S(partition_key.clone()))
         .key("SK", AttributeValue::S("META".to_string()))
@@ -74,47 +81,42 @@ pub async fn create_post(client: &Client, table_name: &str, post: &BlogPost) -> 
 
     info!("item: {:?}", item);
 
-    client.put_item()
+    client
+        .put_item()
         .table_name(table_name)
         .set_item(Some(item))
         .send()
         .await
-        .map_err(|e| {
-            match &e {
-                SdkError::ServiceError(err) => {
-                    error!(
+        .map_err(|e| match &e {
+            SdkError::ServiceError(err) => {
+                error!(
                     "DynamoDB service error: {:?}, raw: {:?}",
                     err.err(),
                     err.raw()
                 );
-                    format!(
-                        "DynamoDB service error: {:?}",
-                        err.err()
-                    )
-                }
-                SdkError::TimeoutError(err) => {
-                    error!("DynamoDB timeout error: {:?}", err);
-                    format!("DynamoDB timeout error: {:?}", err)
-                }
-                SdkError::ConstructionFailure(err) => {
-                    error!("DynamoDB request construction failed: {:?}", err);
-                    format!("DynamoDB request construction failed: {:?}", err)
-                }
-                SdkError::DispatchFailure(err) => {
-                    error!("DynamoDB network dispatch failed: {:?}", err);
-                    format!("DynamoDB network dispatch failed: {:?}", err)
-                }
-                SdkError::ResponseError(err) => {
-                    error!("DynamoDB response error: {:?}", err);
-                    format!("DynamoDB response error: {:?}", err)
-                }
-                other => {
-                    error!("Unexpected DynamoDB error: {:?}", other);
-                    format!("Unexpected DynamoDB error: {:?}", other)
-                }
+                format!("DynamoDB service error: {:?}", err.err())
+            }
+            SdkError::TimeoutError(err) => {
+                error!("DynamoDB timeout error: {:?}", err);
+                format!("DynamoDB timeout error: {:?}", err)
+            }
+            SdkError::ConstructionFailure(err) => {
+                error!("DynamoDB request construction failed: {:?}", err);
+                format!("DynamoDB request construction failed: {:?}", err)
+            }
+            SdkError::DispatchFailure(err) => {
+                error!("DynamoDB network dispatch failed: {:?}", err);
+                format!("DynamoDB network dispatch failed: {:?}", err)
+            }
+            SdkError::ResponseError(err) => {
+                error!("DynamoDB response error: {:?}", err);
+                format!("DynamoDB response error: {:?}", err)
+            }
+            other => {
+                error!("Unexpected DynamoDB error: {:?}", other);
+                format!("Unexpected DynamoDB error: {:?}", other)
             }
         })?;
-
 
     Ok(())
 }
@@ -132,14 +134,14 @@ pub fn parse_next_token(token: &str) -> Option<HashMap<String, AttributeValue>> 
     Some(key)
 }
 
-
 pub async fn fetch_published_posts(
     client: &Client,
     table_name: &str,
     limit: Option<i32>,
-    next_token: Option<String> // TODO parse next token
+    next_token: Option<String>, // TODO parse next token
 ) -> (Vec<BlogPost>, Option<String>) {
-    let mut request = client.query()
+    let mut request = client
+        .query()
         .table_name(table_name)
         .index_name("PublishedIndex")
         .key_condition_expression("published = :published")

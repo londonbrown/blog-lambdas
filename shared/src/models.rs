@@ -14,7 +14,7 @@ pub struct BlogPost {
     #[serde(rename = "createdAt")]
     pub created_at: String,
     #[serde(rename = "contentKey")]
-    pub content_key: String
+    pub content_key: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -27,7 +27,7 @@ pub struct Comment {
     pub user_id: String,
     pub text: String,
     #[serde(rename = "createdAt")]
-    pub created_at: String
+    pub created_at: String,
 }
 
 fn default_published() -> String {
