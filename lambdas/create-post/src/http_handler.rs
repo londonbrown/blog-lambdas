@@ -27,7 +27,9 @@ pub(crate) async fn function_handler(
     
     let author_id = claims?
         .get("sub")
-        .ok_or("Missing sub in claims")?;
+        .ok_or("Missing sub in claims")?
+        .as_str()
+        .ok_or("sub is not defined")?;
     
     let post_request: PostRequest = serde_json::from_str(&body)?;
 
