@@ -56,7 +56,8 @@ fn default_tags() -> Vec<String> {
 #[derive(Debug, Deserialize)]
 pub struct CreatePostRequest {
     pub title: String,
-    pub content: String,
+    #[serde(rename = "contentKey")]
+    pub content_key: String,
     #[serde(default = "default_tags")]
     pub tags: Vec<String>,
     #[serde(default = "default_published")]
