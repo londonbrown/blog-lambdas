@@ -6,7 +6,6 @@ use aws_sdk_cognitoidentityprovider::types::AuthFlowType;
 use chrono::Utc;
 use lambda_runtime::LambdaEvent;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use std::collections::HashMap;
 use std::env;
 use tokio::sync::OnceCell;
@@ -57,7 +56,7 @@ pub(crate) async fn function_handler(
         return Ok(ApiGatewayProxyResponse {
             status_code: 200,
             headers,
-            body: Some(Body::Text(json!({"token": cached_token}).to_string())),
+            body: Some(Body::Text(serde_json::to_string(&cached_token).unwrap())),
             ..Default::default()
         });
     }
