@@ -1,7 +1,7 @@
 use aws_lambda_events::apigw::{ApiGatewayProxyRequest, ApiGatewayProxyResponse};
 use aws_lambda_events::encodings::Body;
 use lambda_runtime::LambdaEvent;
-use tracing::log::info;
+use tracing::info;
 
 pub(crate) async fn function_handler(
     event: LambdaEvent<ApiGatewayProxyRequest>,
