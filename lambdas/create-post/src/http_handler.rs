@@ -5,7 +5,7 @@ use chrono::Utc;
 use lambda_runtime::LambdaEvent;
 use shared::api::get_author_id_from_request_context;
 use shared::db::create_post;
-use shared::models::{BlogPost, PostRequest};
+use shared::models::{BlogPost, CreatePostRequest};
 use std::env;
 use tracing::info;
 use uuid::Uuid;
@@ -20,7 +20,7 @@ pub(crate) async fn function_handler(
 
     let author_id = get_author_id_from_request_context(request_context)?;
 
-    let post_request: PostRequest = serde_json::from_str(&body)?;
+    let post_request: CreatePostRequest = serde_json::from_str(&body)?;
 
     info!("Post request: {:#?}", post_request);
 
