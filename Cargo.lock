@@ -873,7 +873,7 @@ dependencies = [
 
 [[package]]
 name = "create-content"
-version = "0.0.89"
+version = "0.0.90"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -892,7 +892,7 @@ dependencies = [
 
 [[package]]
 name = "create-post"
-version = "0.0.89"
+version = "0.0.90"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -976,7 +976,7 @@ dependencies = [
 
 [[package]]
 name = "delete-post"
-version = "0.0.89"
+version = "0.0.90"
 dependencies = [
  "aws_lambda_events",
  "lambda_runtime",
@@ -1240,7 +1240,7 @@ dependencies = [
 
 [[package]]
 name = "get-content"
-version = "0.0.89"
+version = "0.0.90"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -1259,7 +1259,7 @@ dependencies = [
 
 [[package]]
 name = "get-post"
-version = "0.0.89"
+version = "0.0.90"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -1273,7 +1273,7 @@ dependencies = [
 
 [[package]]
 name = "get-posts"
-version = "0.0.89"
+version = "0.0.90"
 dependencies = [
  "aws-config",
  "aws-sdk-dynamodb",
@@ -1337,7 +1337,7 @@ dependencies = [
 
 [[package]]
 name = "guest-jwt-generator"
-version = "0.0.89"
+version = "0.0.90"
 dependencies = [
  "aws-config",
  "aws-sdk-cognitoidentityprovider",
@@ -2205,7 +2205,7 @@ dependencies = [
 
 [[package]]
 name = "pretoken-generation"
-version = "0.0.89"
+version = "0.0.90"
 dependencies = [
  "aws_lambda_events",
  "jsonwebtoken",
@@ -2843,7 +2843,7 @@ dependencies = [
 
 [[package]]
 name = "shared"
-version = "0.0.89"
+version = "0.0.90"
 dependencies = [
  "aws-sdk-dynamodb",
  "aws_lambda_events",
