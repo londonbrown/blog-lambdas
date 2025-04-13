@@ -1,0 +1,15 @@
+{
+  "resource": "/content/{id}",
+  "routeKey": "$default",
+  "path": "/content/",
+  "httpMethod": "GET",
+  "requestContext": {
+    "resourcePath": "/content/{id}",
+    "httpMethod": "GET",
+    "path": "/content/invalid-id"
+  },
+  "pathParameters": {
+    "id": "invalid-id"
+  },
+  "isBase64Encoded": false
+}

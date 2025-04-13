@@ -8,7 +8,7 @@ use std::collections::HashMap;
 use tracing::error;
 use tracing::info;
 
-async fn get_existing_item(
+async fn get_item(
     client: &Client,
     table_name: &str,
     partition_key: &str,
@@ -122,7 +122,7 @@ pub async fn fetch_post_and_comments(
 pub async fn create_post(client: &Client, table_name: &str, post: &BlogPost) -> Result<(), String> {
     let partition_key = post.pk.clone();
 
-    let existing_post = get_existing_item(client, table_name, &partition_key).await?;
+    let existing_post = get_item(client, table_name, &partition_key).await?;
 
     info!("existing post: {:?}", existing_post);
 
@@ -146,7 +146,7 @@ pub async fn create_content(
 ) -> Result<(), String> {
     let partition_key = content.pk.clone();
 
-    let existing_content = get_existing_item(client, table_name, &partition_key).await?;
+    let existing_content = get_item(client, table_name, &partition_key).await?;
 
     info!("existing content: {:?}", existing_content);
 
@@ -161,6 +161,18 @@ pub async fn create_content(
     put_item(client, table_name, item).await?;
 
     Ok(())
+}
+
+pub async fn get_content(
+    client: &Client,
+    table_name: &str,
+    pk: &str,
+) -> Result<Option<Content>, String> {
+    let item = get_item(client, table_name, pk).await?.item;
+    if item.is_none() {
+        return Ok(None);
+    }
+    from_item(item.unwrap()).map_err(|e| format!("Deserialization error: {}", e))
 }
 
 pub fn parse_next_token(token: &str) -> Option<HashMap<String, AttributeValue>> {

@@ -1,0 +1,16 @@
+{
+  "resource": "/content/{id}",
+  "routeKey": "$default",
+  "path": "/content/",
+  "httpMethod": "GET",
+  "requestContext": {
+    "resourcePath": "/content/{id}",
+    "httpMethod": "GET",
+    "path": "/content/16103ad3-1c29-454a-a351-2a63320f7713"
+  },
+  "pathParameters": {
+    "id": "16103ad3-1c29-454a-a351-2a63320f7713"
+  },
+  "isBase64Encoded": false
+}
+
