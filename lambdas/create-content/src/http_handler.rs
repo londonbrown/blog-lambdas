@@ -20,12 +20,7 @@ pub(crate) async fn function_handler(
     let body = request.body.ok_or("Missing body")?;
 
     let request_context = request.request_context;
-
-    info!("Request context: {:?}", request_context);
-
     let author_id = get_author_id_from_request_context(request_context)?;
-
-    info!("author id: {:?}", author_id);
 
     let parsed: CreateContentRequest = serde_json::from_str(&body)?;
 
