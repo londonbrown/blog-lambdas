@@ -45,6 +45,34 @@ pub struct Content {
     pub author_id: String,
 }
 
+#[derive(Debug, Deserialize, Serialize, Default)]
+pub struct Claims {
+    #[serde(default)]
+    pub auth_time: String,
+    #[serde(default)]
+    pub client_id: String,
+    #[serde(default)]
+    pub event_id: String,
+    #[serde(default)]
+    pub exp: String,
+    #[serde(default)]
+    pub iat: String,
+    #[serde(default)]
+    pub iss: String,
+    #[serde(default)]
+    pub jti: String,
+    #[serde(default)]
+    pub origin_jti: String,
+    #[serde(default)]
+    pub scope: String,
+    #[serde(default)]
+    pub sub: String,
+    #[serde(default)]
+    pub token_use: String,
+    #[serde(default)]
+    pub username: String,
+}
+
 fn default_published() -> String {
     "false".to_string()
 }

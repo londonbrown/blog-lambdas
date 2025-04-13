@@ -1,4 +1,6 @@
+use crate::models::Claims;
 use aws_lambda_events::apigw::ApiGatewayProxyRequestContext;
+use serde_json::from_value;
 use std::error::Error;
 
 pub fn get_author_id_from_request_context(
@@ -6,13 +8,12 @@ pub fn get_author_id_from_request_context(
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
     let fields = request_context.authorizer.fields;
 
-    let claims = fields.get("claims").ok_or("Missing claims in fields");
+    let claims: Claims = match fields.get("claims") {
+        Some(value) => from_value::<Claims>(value.clone()).unwrap_or_default(),
+        None => Claims::default(),
+    };
 
-    let author_id = claims?
-        .get("sub")
-        .ok_or("Missing sub in claims")?
-        .as_str()
-        .ok_or("sub is not defined")?;
+    let author_id = claims.sub;
 
     Ok(author_id.to_string())
 }

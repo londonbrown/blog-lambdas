@@ -2849,6 +2849,7 @@ dependencies = [
  "aws_lambda_events",
  "serde",
  "serde_dynamo",
+ "serde_json",
  "tracing",
 ]
 
