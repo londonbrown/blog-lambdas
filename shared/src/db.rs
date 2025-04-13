@@ -4,8 +4,8 @@ use aws_sdk_dynamodb::types::AttributeValue;
 use aws_sdk_dynamodb::Client;
 use serde_dynamo::{from_item, from_items, to_item};
 use std::collections::HashMap;
+use tracing::error;
 use tracing::info;
-use tracing::log::error;
 
 pub fn extract_next_token(
     last_evaluated_key: Option<HashMap<String, AttributeValue>>,

@@ -54,5 +54,6 @@ pub struct PostResponse {
     pub post_id: String,
     pub title: String,
     pub content: String,
+    #[serde(rename = "authorId")]
     pub author_id: String,
 }
