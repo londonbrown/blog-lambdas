@@ -27,8 +27,6 @@ pub(crate) async fn function_handler(
 
     info!("author id: {:?}", author_id);
 
-    info!("body: {:?}", body);
-
     let parsed: CreateContentRequest = serde_json::from_str(&body)?;
 
     info!("Create content request: {:#?}", parsed);
