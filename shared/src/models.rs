@@ -30,6 +30,21 @@ pub struct Comment {
     pub created_at: String,
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Content {
+    #[serde(rename = "PK")]
+    pub pk: String,
+    #[serde(rename = "SK")]
+    pub sk: String,
+    #[serde(rename = "contentType")]
+    pub content_type: String,
+    pub location: String,
+    #[serde(rename = "createdAt")]
+    pub created_at: String,
+    #[serde(rename = "authorId")]
+    pub author_id: String,
+}
+
 fn default_published() -> String {
     "false".to_string()
 }
@@ -38,7 +53,7 @@ fn default_tags() -> Vec<String> {
     vec![]
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize)]
 pub struct PostRequest {
     pub title: String,
     pub content: String,
@@ -48,12 +63,36 @@ pub struct PostRequest {
     pub published: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 pub struct PostResponse {
     #[serde(rename = "postId")]
     pub post_id: String,
     pub title: String,
     pub content: String,
+    #[serde(rename = "authorId")]
+    pub author_id: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CreateContentRequest {
+    #[serde(rename = "contentType")]
+    pub content_type: String,
+    #[serde(rename = "fileExtension")]
+    pub file_extension: String,
+    pub body: String,
+    #[serde(rename = "isBase64Encoded", default)]
+    pub is_base64_encoded: bool,
+}
+
+#[derive(Debug, Serialize)]
+pub struct CreateContentResponse {
+    #[serde(rename = "contentId")]
+    pub content_id: String,
+    #[serde(rename = "contentType")]
+    pub content_type: String,
+    pub location: String,
+    #[serde(rename = "createdAt")]
+    pub created_at: String,
     #[serde(rename = "authorId")]
     pub author_id: String,
 }

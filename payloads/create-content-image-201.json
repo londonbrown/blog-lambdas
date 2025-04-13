@@ -1,0 +1,17 @@
+{
+  "resource": "/content",
+  "path": "/content",
+  "httpMethod": "POST",
+  "requestContext": {
+    "resourcePath": "/content",
+    "path": "/content",
+    "authorizer": {
+      "claims": {
+        "sub": "74a83468-c0c1-70dc-3a02-0f88012d3238"
+      }
+    },
+    "httpMethod": "POST"
+  },
+  "body": "{\"contentType\":\"image/png\",\"fileExtension\":\"png\",\"body\":\"iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4\\/w8AAzEDEwMjIwoAAAAASUVORK5CYII=\",\"isBase64Encoded\":true}",
+  "isBase64Encoded": false
+}

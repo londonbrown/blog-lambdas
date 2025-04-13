@@ -1,0 +1,17 @@
+{
+  "resource": "/content",
+  "path": "/content",
+  "httpMethod": "POST",
+  "requestContext": {
+    "resourcePath": "/content",
+    "path": "/content",
+    "authorizer": {
+      "claims": {
+        "sub": "74a83468-c0c1-70dc-3a02-0f88012d3238"
+      }
+    },
+    "httpMethod": "POST"
+  },
+  "body": "{\"contentType\": \"text/markdown\",\"body\": \"# Hello from test\\n\\nThis is some markdown content.\", \"fileExtension\": \"md\"}",
+  "isBase64Encoded": false
+}

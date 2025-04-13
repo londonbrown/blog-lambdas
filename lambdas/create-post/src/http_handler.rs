@@ -3,6 +3,7 @@ use aws_lambda_events::encodings::Body;
 use aws_sdk_dynamodb::Client;
 use chrono::Utc;
 use lambda_runtime::LambdaEvent;
+use shared::api::get_author_id_from_request_context;
 use shared::db::create_post;
 use shared::models::{BlogPost, PostRequest};
 use std::env;
@@ -17,15 +18,7 @@ pub(crate) async fn function_handler(
     let request_context = request.request_context;
     let body = request.body.ok_or("Missing body")?;
 
-    let fields = request_context.authorizer.fields;
-
-    let claims = fields.get("claims").ok_or("Missing claims in fields");
-
-    let author_id = claims?
-        .get("sub")
-        .ok_or("Missing sub in claims")?
-        .as_str()
-        .ok_or("sub is not defined")?;
+    let author_id = get_author_id_from_request_context(request_context)?;
 
     let post_request: PostRequest = serde_json::from_str(&body)?;
 

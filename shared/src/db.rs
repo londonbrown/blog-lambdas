@@ -1,11 +1,71 @@
-use crate::models::{BlogPost, Comment};
+use crate::models::{BlogPost, Comment, Content};
 use aws_sdk_dynamodb::error::SdkError;
+use aws_sdk_dynamodb::operation::get_item::GetItemOutput;
 use aws_sdk_dynamodb::types::AttributeValue;
 use aws_sdk_dynamodb::Client;
 use serde_dynamo::{from_item, from_items, to_item};
 use std::collections::HashMap;
 use tracing::error;
 use tracing::info;
+
+async fn get_existing_item(
+    client: &Client,
+    table_name: &str,
+    partition_key: &str,
+) -> Result<GetItemOutput, String> {
+    client
+        .get_item()
+        .table_name(table_name)
+        .key("PK", AttributeValue::S(partition_key.to_string()))
+        .key("SK", AttributeValue::S("META".to_string()))
+        .send()
+        .await
+        .map_err(|e| format!("DynamoDB error: {}", e))
+}
+
+async fn put_item(
+    client: &Client,
+    table_name: &str,
+    item: HashMap<String, AttributeValue>,
+) -> Result<(), String> {
+    client
+        .put_item()
+        .table_name(table_name)
+        .set_item(Some(item))
+        .send()
+        .await
+        .map_err(|e| match &e {
+            SdkError::ServiceError(err) => {
+                error!(
+                    "DynamoDB service error: {:?}, raw: {:?}",
+                    err.err(),
+                    err.raw()
+                );
+                format!("DynamoDB service error: {:?}", err.err())
+            }
+            SdkError::TimeoutError(err) => {
+                error!("DynamoDB timeout error: {:?}", err);
+                format!("DynamoDB timeout error: {:?}", err)
+            }
+            SdkError::ConstructionFailure(err) => {
+                error!("DynamoDB request construction failed: {:?}", err);
+                format!("DynamoDB request construction failed: {:?}", err)
+            }
+            SdkError::DispatchFailure(err) => {
+                error!("DynamoDB network dispatch failed: {:?}", err);
+                format!("DynamoDB network dispatch failed: {:?}", err)
+            }
+            SdkError::ResponseError(err) => {
+                error!("DynamoDB response error: {:?}", err);
+                format!("DynamoDB response error: {:?}", err)
+            }
+            other => {
+                error!("Unexpected DynamoDB error: {:?}", other);
+                format!("Unexpected DynamoDB error: {:?}", other)
+            }
+        })?;
+    Ok(())
+}
 
 pub fn extract_next_token(
     last_evaluated_key: Option<HashMap<String, AttributeValue>>,
@@ -62,14 +122,7 @@ pub async fn fetch_post_and_comments(
 pub async fn create_post(client: &Client, table_name: &str, post: &BlogPost) -> Result<(), String> {
     let partition_key = post.pk.clone();
 
-    let existing_post = client
-        .get_item()
-        .table_name(table_name)
-        .key("PK", AttributeValue::S(partition_key.clone()))
-        .key("SK", AttributeValue::S("META".to_string()))
-        .send()
-        .await
-        .map_err(|e| format!("DynamoDB error: {}", e))?;
+    let existing_post = get_existing_item(client, table_name, &partition_key).await?;
 
     info!("existing post: {:?}", existing_post);
 
@@ -81,42 +134,31 @@ pub async fn create_post(client: &Client, table_name: &str, post: &BlogPost) -> 
 
     info!("item: {:?}", item);
 
-    client
-        .put_item()
-        .table_name(table_name)
-        .set_item(Some(item))
-        .send()
-        .await
-        .map_err(|e| match &e {
-            SdkError::ServiceError(err) => {
-                error!(
-                    "DynamoDB service error: {:?}, raw: {:?}",
-                    err.err(),
-                    err.raw()
-                );
-                format!("DynamoDB service error: {:?}", err.err())
-            }
-            SdkError::TimeoutError(err) => {
-                error!("DynamoDB timeout error: {:?}", err);
-                format!("DynamoDB timeout error: {:?}", err)
-            }
-            SdkError::ConstructionFailure(err) => {
-                error!("DynamoDB request construction failed: {:?}", err);
-                format!("DynamoDB request construction failed: {:?}", err)
-            }
-            SdkError::DispatchFailure(err) => {
-                error!("DynamoDB network dispatch failed: {:?}", err);
-                format!("DynamoDB network dispatch failed: {:?}", err)
-            }
-            SdkError::ResponseError(err) => {
-                error!("DynamoDB response error: {:?}", err);
-                format!("DynamoDB response error: {:?}", err)
-            }
-            other => {
-                error!("Unexpected DynamoDB error: {:?}", other);
-                format!("Unexpected DynamoDB error: {:?}", other)
-            }
-        })?;
+    put_item(client, table_name, item).await?;
+
+    Ok(())
+}
+
+pub async fn create_content(
+    client: &Client,
+    table_name: &str,
+    content: &Content,
+) -> Result<(), String> {
+    let partition_key = content.pk.clone();
+
+    let existing_content = get_existing_item(client, table_name, &partition_key).await?;
+
+    info!("existing content: {:?}", existing_content);
+
+    if existing_content.item.is_some() {
+        return Err("Content already exists".to_string());
+    }
+
+    let item = to_item(content).map_err(|e| format!("Serialization error: {}", e))?;
+
+    info!("item: {:?}", item);
+
+    put_item(client, table_name, item).await?;
 
     Ok(())
 }
